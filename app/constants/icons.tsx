@@ -13,6 +13,7 @@ export const TabIcons = {
   garage: Garage,
   connect: Connect,
   assistant: Assistant,
+  obdDev: Connect,
 } as const;
 
 export const Icons = {

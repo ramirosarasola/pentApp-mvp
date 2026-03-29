@@ -1,17 +1,19 @@
 {
   "expo": {
-    "name": "mvp-react-native",
+    "name": "AutolibreAI",
     "slug": "mvp-react-native",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mvpreactnative",
+    "scheme": "autolibreai",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "bundleIdentifier": "com.ramiro.autolibreai",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.ramiro.autolibreai",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -19,7 +21,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["android.permission.BLUETOOTH", "android.permission.BLUETOOTH_ADMIN", "android.permission.ACCESS_FINE_LOCATION", "android.permission.BLUETOOTH_CONNECT", "android.permission.BLUETOOTH_SCAN", "android.permission.BLUETOOTH_ADVERTISE"]
     },
     "web": {
       "output": "static",
@@ -42,19 +45,27 @@
       [
         "expo-font",
         {
-          "fonts": [
-            "./assets/fonts/Space_Grotesk/SpaceGrotesk-Light.ttf",
-            "./assets/fonts/Space_Grotesk/SpaceGrotesk-Regular.ttf",
-            "./assets/fonts/Space_Grotesk/SpaceGrotesk-Medium.ttf",
-            "./assets/fonts/Space_Grotesk/SpaceGrotesk-SemiBold.ttf",
-            "./assets/fonts/Space_Grotesk/SpaceGrotesk-Bold.ttf"
-          ]
+          "fonts": ["./assets/fonts/Space_Grotesk/SpaceGrotesk-Light.ttf", "./assets/fonts/Space_Grotesk/SpaceGrotesk-Regular.ttf", "./assets/fonts/Space_Grotesk/SpaceGrotesk-Medium.ttf", "./assets/fonts/Space_Grotesk/SpaceGrotesk-SemiBold.ttf", "./assets/fonts/Space_Grotesk/SpaceGrotesk-Bold.ttf"]
+        }
+      ],
+      [
+        "with-rn-bluetooth-classic",
+        {
+          "peripheralUsageDescription": "Necesitamos Bluetooth para buscar y conectar el escáner OBD.",
+          "alwaysUsageDescription": "Usamos Bluetooth para mantener la conexión con el escáner cuando la app está activa.",
+          "protocols": ["com.apple.m1"]
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "10b9df1d-fc0c-42af-a9b7-4649c7d12f38"
+      }
     }
   }
 }

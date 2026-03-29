@@ -3,7 +3,7 @@ import type { SvgProps } from "react-native-svg";
 import { TabIcons } from "./icons";
 
 export type TabConfig = {
-  name: "index" | "garage" | "connect" | "assistant";
+  name: "index" | "garage" | "connect" | "assistant" | "obd-dev";
   title: string;
   Icon: FC<SvgProps>;
 };
@@ -28,5 +28,10 @@ export const tabs: readonly TabConfig[] = [
     name: "assistant",
     title: "AI",
     Icon: TabIcons.assistant,
+  },
+  {
+    name: "obd-dev",
+    title: "OBD",
+    Icon: TabIcons.obdDev,
   },
 ];
