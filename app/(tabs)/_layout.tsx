@@ -1,16 +1,19 @@
+import AppShellDrawer from "@/app/components/layout/app-shell-drawer";
+import AppShellTopBar from "@/app/components/layout/app-shell-top-bar";
 import { tabs } from "@/app/constants/data";
 import { colors, components } from "@/app/constants/theme";
-import { useAuth } from "@clerk/expo";
+import { useAuth, useClerk, useUser } from "@clerk/expo";
 import { BottomTabBar } from "@react-navigation/bottom-tabs";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
-import { Redirect, Tabs } from "expo-router";
-import type { FC } from "react";
+import { Redirect, Tabs, useRouter } from "expo-router";
+import { useMemo, useState, type FC } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { SvgProps } from "react-native-svg";
 
 const tabBar = components.tabBar;
+const TOP_BAR_HEIGHT = 0;
 
 const tabNavigatorTheme = {
   ...DarkTheme,
@@ -56,6 +59,8 @@ function InsetTabBar(props: BottomTabBarProps) {
       style={{
         width: "100%",
         backgroundColor: colors.background,
+        borderTopWidth: 1,
+        borderTopColor: colors.tabBarBorder,
         paddingLeft: insets.left + hInset,
         paddingRight: insets.right + hInset,
         paddingBottom: bottomPad,
@@ -84,6 +89,58 @@ function InsetTabBar(props: BottomTabBarProps) {
 
 const TabLayout = () => {
   const { isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
+  const { signOut } = useClerk();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const [isDrawerVisible, setIsDrawerVisible] = useState<boolean>(false);
+  const headerOffsetTop: number = insets.top + TOP_BAR_HEIGHT + components.tabBar.horizontalInset;
+  const profileImageSource = user?.imageUrl ? { uri: user.imageUrl } : null;
+  const drawerItems = useMemo(
+    () => [
+      {
+        label: "Home",
+        iconName: "home" as const,
+        onPress: () => {
+          setIsDrawerVisible(false);
+          router.push("/(tabs)");
+        },
+      },
+      {
+        label: "Garage",
+        iconName: "truck" as const,
+        onPress: () => {
+          setIsDrawerVisible(false);
+          router.push("/(tabs)/garage");
+        },
+      },
+      {
+        label: "Connect",
+        iconName: "link" as const,
+        onPress: () => {
+          setIsDrawerVisible(false);
+          router.push("/(tabs)/connect");
+        },
+      },
+      {
+        label: "Assistant",
+        iconName: "cpu" as const,
+        onPress: () => {
+          setIsDrawerVisible(false);
+          router.push("/(tabs)/assistant");
+        },
+      },
+      {
+        label: "Sign out",
+        iconName: "log-out" as const,
+        onPress: () => {
+          setIsDrawerVisible(false);
+          void signOut();
+        },
+      },
+    ],
+    [router, signOut]
+  );
 
   if (!isLoaded) {
     return null;
@@ -94,61 +151,87 @@ const TabLayout = () => {
   }
 
   return (
-    <ThemeProvider value={tabNavigatorTheme}>
-      <Tabs
-        tabBar={(props) => <InsetTabBar {...props} />}
-        screenOptions={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          sceneStyle: {
-            flex: 1,
-            backgroundColor: colors.background,
-          },
-          tabBarStyle: {
-            backgroundColor: colors.background,
-            borderTopWidth: 0,
-            elevation: 0,
-            height: tabBar.height,
-            paddingHorizontal: 4,
-            paddingTop: 8,
-            paddingBottom: 8,
-          },
-          tabBarItemStyle: {
-            flex: 1,
-            justifyContent: "center",
-          },
-          tabBarIconStyle: {
-            flex: 1,
-            width: "100%",
-            height: "100%",
-          },
-        }}
-    >
-      {tabs.map((tab) => (
-        <Tabs.Screen
-          key={tab.name}
-          name={tab.name}
-          options={{
-            title: tab.title,
-            tabBarIcon: ({ focused }: { focused: boolean }) => (
-              <TabIcon focused={focused} Icon={tab.Icon} label={tab.title} />
-            ),
+    <View style={styles.screenRoot}>
+      <ThemeProvider value={tabNavigatorTheme}>
+        <Tabs
+          tabBar={(props) => <InsetTabBar {...props} />}
+          screenOptions={{
+            headerShown: false,
+            tabBarShowLabel: false,
+            sceneStyle: {
+              flex: 1,
+              backgroundColor: colors.background,
+              paddingTop: headerOffsetTop,
+            },
+            tabBarStyle: {
+              backgroundColor: colors.background,
+              borderTopWidth: 0,
+              elevation: 0,
+              height: tabBar.height,
+              paddingHorizontal: 4,
+              paddingTop: 8,
+              paddingBottom: 8,
+            },
+            tabBarItemStyle: {
+              flex: 1,
+              justifyContent: "center",
+            },
+            tabBarIconStyle: {
+              flex: 1,
+              width: "100%",
+              height: "100%",
+            },
           }}
+        >
+          {tabs.map((tab) => (
+            <Tabs.Screen
+              key={tab.name}
+              name={tab.name}
+              options={{
+                title: tab.title,
+                tabBarIcon: ({ focused }: { focused: boolean }) => (
+                  <TabIcon focused={focused} Icon={tab.Icon} label={tab.title} />
+                ),
+              }}
+            />
+          ))}
+        </Tabs>
+      </ThemeProvider>
+      <View style={styles.topBarLayer}>
+        <AppShellTopBar
+          topInset={insets.top}
+          profileImageSource={profileImageSource}
+          onPressMenu={() => setIsDrawerVisible(true)}
+          onPressProfile={() => setIsDrawerVisible(true)}
         />
-      ))}
-      </Tabs>
-    </ThemeProvider>
+      </View>
+      <AppShellDrawer
+        isVisible={isDrawerVisible}
+        topInset={insets.top}
+        drawerItems={drawerItems}
+        onClose={() => setIsDrawerVisible(false)}
+      />
+    </View>
   );
 };
 
 export default TabLayout;
 
 const styles = StyleSheet.create({
+  screenRoot: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  topBarLayer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 60,
+  },
   tabBarCard: {
     borderRadius: tabBar.radius,
     backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.tabBarBorder,
     overflow: "hidden",
   },
   tabCell: {
