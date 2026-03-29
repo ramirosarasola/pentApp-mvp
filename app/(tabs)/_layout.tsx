@@ -1,12 +1,27 @@
 import { tabs } from "@/app/constants/data";
 import { colors, components } from "@/app/constants/theme";
+import { BottomTabBar } from "@react-navigation/bottom-tabs";
+import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { DarkTheme, ThemeProvider } from "@react-navigation/native";
 import { Tabs } from "expo-router";
 import type { FC } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
-import type { SvgProps } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import type { SvgProps } from "react-native-svg";
 
 const tabBar = components.tabBar;
+
+const tabNavigatorTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: colors.background,
+    card: colors.card,
+    border: colors.tabBarBorder,
+    text: colors.quaternary,
+    primary: colors.tertiary,
+  },
+};
 
 const TabIcon = ({
   focused,
@@ -30,43 +45,73 @@ const TabIcon = ({
   );
 };
 
-const TabLayout = () => {
+function InsetTabBar(props: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
-  const bottomOffset = Math.max(insets.bottom, tabBar.horizontalInset);
+  const hInset = tabBar.horizontalInset;
+  const bottomPad = Math.max(insets.bottom, hInset);
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: {
-          position: "absolute",
-          left: tabBar.horizontalInset,
-          right: tabBar.horizontalInset,
-          bottom: bottomOffset,
-          height: tabBar.height,
-          paddingHorizontal: 4,
-          paddingTop: 8,
-          paddingBottom: 8,
-          backgroundColor: colors.tabBarBackground,
-          borderRadius: tabBar.radius,
-          borderWidth: 1,
-          borderColor: colors.tabBarBorder,
-          elevation: 12,
-          shadowColor: "#000",
-          shadowOpacity: 0.35,
-          shadowRadius: 16,
-          shadowOffset: { width: 0, height: 6 },
-        },
-        tabBarItemStyle: {
-          flex: 1,
-          justifyContent: "center",
-        },
-        tabBarIconStyle: {
-          flex: 1,
-          width: "100%",
-          height: "100%",
-        },
+    <View
+      pointerEvents="box-none"
+      style={{
+        width: "100%",
+        backgroundColor: colors.background,
+        paddingLeft: insets.left + hInset,
+        paddingRight: insets.right + hInset,
+        paddingBottom: bottomPad,
       }}
+    >
+      <View
+        style={[
+          styles.tabBarCard,
+          Platform.select({
+            ios: {
+              shadowColor: "#000",
+              shadowOpacity: 0.35,
+              shadowRadius: 16,
+              shadowOffset: { width: 0, height: 6 },
+            },
+            android: { elevation: 12 },
+            default: {},
+          }),
+        ]}
+      >
+        <BottomTabBar {...props} />
+      </View>
+    </View>
+  );
+}
+
+const TabLayout = () => {
+  return (
+    <ThemeProvider value={tabNavigatorTheme}>
+      <Tabs
+        tabBar={(props) => <InsetTabBar {...props} />}
+        screenOptions={{
+          headerShown: false,
+          tabBarShowLabel: false,
+          sceneStyle: {
+            flex: 1,
+            backgroundColor: colors.background,
+          },
+          tabBarStyle: {
+            backgroundColor: colors.background,
+            borderTopWidth: 0,
+            elevation: 0,
+            height: tabBar.height,
+            paddingHorizontal: 4,
+            paddingTop: 8,
+            paddingBottom: 8,
+          },
+          tabBarItemStyle: {
+            flex: 1,
+            justifyContent: "center",
+          },
+          tabBarIconStyle: {
+            flex: 1,
+            width: "100%",
+            height: "100%",
+          },
+        }}
     >
       {tabs.map((tab) => (
         <Tabs.Screen
@@ -80,13 +125,21 @@ const TabLayout = () => {
           }}
         />
       ))}
-    </Tabs>
+      </Tabs>
+    </ThemeProvider>
   );
 };
 
 export default TabLayout;
 
 const styles = StyleSheet.create({
+  tabBarCard: {
+    borderRadius: tabBar.radius,
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.tabBarBorder,
+    overflow: "hidden",
+  },
   tabCell: {
     flex: 1,
     alignItems: "center",
@@ -118,9 +171,10 @@ const styles = StyleSheet.create({
     }),
   },
   label: {
+    fontFamily: "sans-semibold",
     fontSize: 10,
     letterSpacing: 0.6,
-    fontWeight: "600",
+    fontWeight: "400",
     textAlign: "center",
   },
   labelActive: {

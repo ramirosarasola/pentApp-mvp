@@ -5,17 +5,43 @@
 @import "nativewind/theme";
 
 @theme {
-  --color-background: #fff9e3;
-  --color-foreground: #081126;
-  --color-card: #fff8e7;
-  --color-muted: #f6eecf;
-  --color-muted-foreground: rgba(0, 0, 0, 0.6);
-  --color-primary: #081126;
-  --color-accent: #ea7a53;
-  --color-border: rgba(0, 0, 0, 0.1);
-  --color-success: #16a34a;
-  --color-destructive: #dc2626;
-  --color-subscription: #8fd1bd;
+  /**
+   * Paleta semántica
+   * - primary: fondos generales (app, pantallas)
+   * - secondary: fondos de cards, inputs, superficies elevadas
+   * - tertiary: texto de títulos, acentos, CTAs
+   * - quaternary: texto de cuerpo / principal
+   */
+  --color-primary: #0d1321;
+  --color-secondary: #191f2e;
+  --color-tertiary: #00daf3;
+  --color-quaternary: #c1c6d7;
+
+  /* Tokens de UI (mapeo para utilidades Tailwind habituales) */
+  --color-background: #0d1321;
+  --color-foreground: #c1c6d7;
+  --color-card: #191f2e;
+  --color-muted: #191f2e;
+  --color-muted-foreground: rgba(193, 198, 215, 0.55);
+  --color-accent: #00daf3;
+  --color-border: rgba(193, 198, 215, 0.14);
+
+  --color-success: #2ff801;
+  --color-destructive: #93000a;
+  --color-warning: #f1c100;
+  --color-white: #dde2f6;
+
+  /* Superficies de estado (p. ej. suscripción activa) */
+  --color-subscription: rgba(0, 218, 243, 0.14);
+
+  /* Space Grotesk (claves = useFonts en app/_layout.tsx). Por defecto: Regular. */
+  --font-sans: sans-regular;
+  --font-sans-regular: sans-regular;
+  --font-sans-light: sans-light;
+  --font-sans-medium: sans-medium;
+  --font-sans-semibold: sans-semibold;
+  --font-sans-bold: sans-bold;
+  --font-sans-extrabold: sans-extrabold;
 
   --spacing-0: 0px;
   --spacing-1: 4px;
@@ -36,13 +62,51 @@
   --spacing-20: 80px;
   --spacing-24: 96px;
   --spacing-30: 120px;
+}
 
-  --font-sans: sans-regular;
-  --font-sans-light: sans-light;
-  --font-sans-medium: sans-medium;
-  --font-sans-semibold: sans-semibold;
-  --font-sans-bold: sans-bold;
-  --font-sans-extrabold: sans-extrabold;
+/**
+ * Fuente por defecto: Space Grotesk Regular (--font-sans / sans-regular).
+ * En React Native, font-light / font-bold deben usar el .ttf correspondiente.
+ */
+@layer base {
+  * {
+    font-family: var(--font-sans);
+  }
+}
+
+@utility font-light {
+  font-family: var(--font-sans-light);
+  font-weight: 400;
+}
+
+@utility font-normal {
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
+
+@utility font-medium {
+  font-family: var(--font-sans-medium);
+  font-weight: 400;
+}
+
+@utility font-semibold {
+  font-family: var(--font-sans-semibold);
+  font-weight: 400;
+}
+
+@utility font-bold {
+  font-family: var(--font-sans-bold);
+  font-weight: 400;
+}
+
+@utility font-extrabold {
+  font-family: var(--font-sans-extrabold);
+  font-weight: 400;
+}
+
+@utility font-black {
+  font-family: var(--font-sans-extrabold);
+  font-weight: 400;
 }
 
 @layer components {
@@ -59,7 +123,7 @@
   }
 
   .home-user-name {
-    @apply ml-4 text-2xl font-sans-bold text-primary;
+    @apply ml-4 text-2xl font-sans-bold text-tertiary;
   }
 
   .home-add-icon {
@@ -67,11 +131,11 @@
   }
 
   .home-balance-card {
-    @apply my-2.5 min-h-50 justify-between gap-5 rounded-bl-4xl rounded-tr-4xl bg-accent p-6;
+    @apply my-2.5 min-h-50 justify-between gap-5 rounded-bl-4xl rounded-tr-4xl bg-tertiary p-6;
   }
 
   .home-balance-label {
-    @apply text-xl font-sans-semibold text-white/80;
+    @apply text-xl font-sans-semibold text-primary/80;
   }
 
   .home-balance-row {
@@ -79,11 +143,11 @@
   }
 
   .home-balance-amount {
-    @apply text-4xl font-sans-extrabold text-white;
+    @apply text-4xl font-sans-extrabold text-primary;
   }
 
   .home-balance-date {
-    @apply text-xl font-sans-medium text-white;
+    @apply text-xl font-sans-medium text-primary;
   }
 
   .list-head {
@@ -91,19 +155,19 @@
   }
 
   .list-title {
-    @apply text-2xl font-sans-bold text-primary;
+    @apply text-2xl font-sans-bold text-tertiary;
   }
 
   .list-action {
-    @apply rounded-full border border-black/20 px-4 py-1;
+    @apply rounded-full border border-border px-4 py-1;
   }
 
   .list-action-text {
-    @apply text-lg font-sans-semibold text-primary;
+    @apply text-lg font-sans-semibold text-quaternary;
   }
 
   .upcoming-card {
-    @apply mr-4 w-44 rounded-2xl border border-black/10 bg-background p-4;
+    @apply mr-4 w-44 rounded-2xl border border-border bg-card p-4;
   }
 
   .upcoming-row {
@@ -115,7 +179,7 @@
   }
 
   .upcoming-price {
-    @apply text-lg font-sans-bold text-primary;
+    @apply text-lg font-sans-bold text-tertiary;
   }
 
   .upcoming-meta {
@@ -123,11 +187,11 @@
   }
 
   .upcoming-name {
-    @apply mt-2 text-lg font-sans-bold text-primary;
+    @apply mt-2 text-lg font-sans-bold text-tertiary;
   }
 
   .sub-card {
-    @apply rounded-2xl border border-border p-4;
+    @apply rounded-2xl border border-border bg-card p-4;
   }
 
   .sub-card-expanded {
@@ -151,7 +215,7 @@
   }
 
   .sub-title {
-    @apply mb-1 text-lg font-sans-bold text-primary;
+    @apply mb-1 text-lg font-sans-bold text-tertiary;
   }
 
   .sub-meta {
@@ -163,7 +227,7 @@
   }
 
   .sub-price {
-    @apply mb-1 text-lg font-sans-bold text-primary;
+    @apply mb-1 text-lg font-sans-bold text-tertiary;
   }
 
   .sub-billing {
@@ -191,7 +255,7 @@
   }
 
   .sub-value {
-    @apply flex-1 font-sans-bold text-primary;
+    @apply flex-1 font-sans-bold text-quaternary;
   }
 
   .sub-cancel {
@@ -203,11 +267,11 @@
   }
 
   .sub-cancel-text {
-    @apply font-sans-bold text-background;
+    @apply font-sans-bold text-white;
   }
 
   .home-empty-state {
-    @apply py-4 text-sm font-sans-medium text-black/60;
+    @apply py-4 text-sm font-sans-medium text-muted-foreground;
   }
 
   .auth-safe-area {
@@ -235,15 +299,15 @@
   }
 
   .auth-logo-mark {
-    @apply relative size-14 items-center justify-center rounded-2xl bg-accent;
+    @apply relative size-14 items-center justify-center rounded-2xl bg-tertiary;
   }
 
   .auth-logo-mark-text {
-    @apply text-2xl font-sans-extrabold text-background;
+    @apply text-2xl font-sans-extrabold text-primary;
   }
 
   .auth-wordmark {
-    @apply text-3xl font-sans-extrabold text-primary;
+    @apply text-3xl font-sans-extrabold text-tertiary;
   }
 
   .auth-wordmark-sub {
@@ -251,7 +315,7 @@
   }
 
   .auth-title {
-    @apply text-3xl font-sans-bold text-primary;
+    @apply text-3xl font-sans-bold text-tertiary;
   }
 
   .auth-subtitle {
@@ -271,11 +335,11 @@
   }
 
   .auth-label {
-    @apply text-sm font-sans-semibold text-primary;
+    @apply text-sm font-sans-semibold text-quaternary;
   }
 
   .auth-input {
-    @apply rounded-2xl border border-border bg-background px-4 py-4 text-base font-sans-medium text-primary;
+    @apply rounded-2xl border border-border bg-secondary px-4 py-4 text-base font-sans-medium text-quaternary;
   }
 
   .auth-input-error {
@@ -291,11 +355,11 @@
   }
 
   .auth-button {
-    @apply mt-1 items-center rounded-2xl bg-accent py-4;
+    @apply mt-1 items-center rounded-2xl bg-tertiary py-4;
   }
 
   .auth-button-disabled {
-    @apply bg-accent/45;
+    @apply bg-tertiary/45;
   }
 
   .auth-button-text {
@@ -303,11 +367,11 @@
   }
 
   .auth-secondary-button {
-    @apply items-center rounded-2xl border border-accent/30 bg-accent/10 py-3;
+    @apply items-center rounded-2xl border border-tertiary/30 bg-tertiary/10 py-3;
   }
 
   .auth-secondary-button-text {
-    @apply text-sm font-sans-semibold text-accent;
+    @apply text-sm font-sans-semibold text-tertiary;
   }
 
   .auth-divider-row {
@@ -331,7 +395,7 @@
   }
 
   .auth-link {
-    @apply text-sm font-sans-bold text-accent;
+    @apply text-sm font-sans-bold text-tertiary;
   }
 
   .modal-overlay {
@@ -339,7 +403,7 @@
   }
 
   .modal-container {
-    @apply mt-auto max-h-[85%] rounded-t-3xl bg-background;
+    @apply mt-auto max-h-[85%] rounded-t-3xl bg-card;
   }
 
   .modal-header {
@@ -347,15 +411,15 @@
   }
 
   .modal-title {
-    @apply text-xl font-sans-bold text-primary;
+    @apply text-xl font-sans-bold text-tertiary;
   }
 
   .modal-close {
-    @apply size-8 items-center justify-center rounded-full bg-muted;
+    @apply size-8 items-center justify-center rounded-full bg-secondary;
   }
 
   .modal-close-text {
-    @apply text-lg font-sans-bold text-primary;
+    @apply text-lg font-sans-bold text-tertiary;
   }
 
   .modal-body {
@@ -367,11 +431,11 @@
   }
 
   .picker-option {
-    @apply flex-1 items-center rounded-2xl border border-border bg-background py-3;
+    @apply flex-1 items-center rounded-2xl border border-border bg-secondary py-3;
   }
 
   .picker-option-active {
-    @apply border-accent bg-accent/10;
+    @apply border-tertiary bg-tertiary/10;
   }
 
   .picker-option-text {
@@ -379,7 +443,7 @@
   }
 
   .picker-option-text-active {
-    @apply text-accent;
+    @apply text-tertiary;
   }
 
   .category-scroll {
@@ -387,11 +451,11 @@
   }
 
   .category-chip {
-    @apply rounded-full border border-border bg-background px-4 py-2;
+    @apply rounded-full border border-border bg-secondary px-4 py-2;
   }
 
   .category-chip-active {
-    @apply border-accent bg-accent/10;
+    @apply border-tertiary bg-tertiary/10;
   }
 
   .category-chip-text {
@@ -399,6 +463,6 @@
   }
 
   .category-chip-text-active {
-    @apply text-accent;
+    @apply text-tertiary;
   }
 }

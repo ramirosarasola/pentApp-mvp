@@ -38,6 +38,18 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Space_Grotesk/SpaceGrotesk-Light.ttf",
+            "./assets/fonts/Space_Grotesk/SpaceGrotesk-Regular.ttf",
+            "./assets/fonts/Space_Grotesk/SpaceGrotesk-Medium.ttf",
+            "./assets/fonts/Space_Grotesk/SpaceGrotesk-SemiBold.ttf",
+            "./assets/fonts/Space_Grotesk/SpaceGrotesk-Bold.ttf"
+          ]
+        }
       ]
     ],
     "experiments": {

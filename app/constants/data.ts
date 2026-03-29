@@ -1,5 +1,5 @@
-import type { SvgProps } from "react-native-svg";
 import type { FC } from "react";
+import type { SvgProps } from "react-native-svg";
 import { TabIcons } from "./icons";
 
 export type TabConfig = {
@@ -26,7 +26,7 @@ export const tabs: readonly TabConfig[] = [
   },
   {
     name: "assistant",
-    title: "Assistant",
+    title: "AI",
     Icon: TabIcons.assistant,
   },
 ];

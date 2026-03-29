@@ -1,21 +1,24 @@
+/** Alineado con @theme en global.css */
 export const colors = {
-  background: "#fff9e3",
-  foreground: "#081126",
-  card: "#fff8e7",
-  muted: "#f6eecf",
-  mutedForeground: "rgba(0, 0, 0, 0.6)",
-  primary: "#081126",
-  accent: "#ea7a53",
-  border: "rgba(0, 0, 0, 0.1)",
-  success: "#16a34a",
-  destructive: "#dc2626",
-  subscription: "#8fd1bd",
-  /** Bottom tab bar (dark chrome) */
-  tabBarBackground: "#12161f",
-  tabBarBorder: "rgba(99, 102, 241, 0.45)",
-  tabBarActive: "#2dd4bf",
-  tabBarInactive: "#8b92a3",
-  tabBarPillActive: "rgba(45, 212, 191, 0.14)",
+  primary: "#0d1321",
+  secondary: "#191f2e",
+  tertiary: "#00daf3",
+  quaternary: "#c1c6d7",
+  background: "#0d1321",
+  foreground: "#c1c6d7",
+  card: "#191f2e",
+  mutedForeground: "rgba(193, 198, 215, 0.55)",
+  accent: "#00daf3",
+  border: "rgba(193, 198, 215, 0.14)",
+  success: "#2ff801",
+  destructive: "#93000a",
+  warning: "#f1c100",
+  white: "#dde2f6",
+  subscription: "rgba(0, 218, 243, 0.14)",
+  tabBarBorder: "rgba(193, 198, 215, 0.14)",
+  tabBarActive: "#00daf3",
+  tabBarInactive: "rgba(193, 198, 215, 0.45)",
+  tabBarPillActive: "rgba(0, 218, 243, 0.14)",
 } as const;
 
 export const spacing = {
@@ -43,7 +46,8 @@ export const spacing = {
 export const components = {
   tabBar: {
     height: 78,
-    horizontalInset: spacing[4],
+    /** Misma base horizontal que `px-5` en pantallas (20px). */
+    horizontalInset: spacing[5],
     radius: 20,
     iconSize: 22,
     itemPaddingVertical: spacing[2],
