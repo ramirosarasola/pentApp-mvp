@@ -9,6 +9,9 @@
 import type { SppTransport } from "./spp-transport"
 import obdDebug from "./debug"
 
+const RESET_COMMAND_TIMEOUT_MS = 10000
+const RESET_SETTLE_DELAY_MS = 1200
+
 // ─── Comandos AT del ELM327 ───────────────────────────────────────────────────
 
 export const AT = {
@@ -86,8 +89,8 @@ export class Elm327 {
    */
   async initialize(): Promise<Elm327Info> {
     obdDebug.log("ELM327", "Iniciando secuencia de inicializacion")
-    const resetResponse = await this.transport.sendCommand(AT.RESET)
-    await this.delay(1000)
+    const resetResponse = await this.executeResetSequence()
+    await this.delay(RESET_SETTLE_DELAY_MS)
 
     const version = this.extractVersion(resetResponse)
     obdDebug.log("ELM327", "Version detectada", version)
@@ -176,5 +179,19 @@ export class Elm327 {
 
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms))
+  }
+
+  private async executeResetSequence(): Promise<string> {
+    try {
+      return await this.transport.sendCommand(AT.RESET, RESET_COMMAND_TIMEOUT_MS)
+    } catch (resetError) {
+      obdDebug.warn("ELM327", "ATZ timeout/fallo, intentando ATWS", resetError)
+      try {
+        return await this.transport.sendCommand(AT.WARM_START, RESET_COMMAND_TIMEOUT_MS)
+      } catch (warmStartError) {
+        obdDebug.warn("ELM327", "ATWS tambien fallo, continuo sin reset", warmStartError)
+        return ""
+      }
+    }
   }
 }
