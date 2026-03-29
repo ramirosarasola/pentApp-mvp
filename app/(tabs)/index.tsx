@@ -1,98 +1,58 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Icons } from "@/app/constants/icons";
+import { Image, Pressable, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+const FLEET_HEALTH_PERCENT = 92;
 
-export default function HomeScreen() {
+export default function App() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
-
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <SafeAreaView className="flex-1 bg-background" edges={["left", "right"]}>
+      <View className="flex-1 flex-col gap-8 px-5 pt-4">
+        <View className="w-full overflow-hidden rounded-[20px] border-l-4 border-tertiary bg-secondary p-6 h-30">
+          <View className="flex-row items-start justify-between gap-4">
+            <View className="min-w-0 flex-1">
+              <Text className="font-sans-regular text-[11px] uppercase tracking-[1.5px] text-quaternary">Global fleet health</Text>
+              <View className="mt-2 flex-row items-baseline">
+                <Text className="font-sans-bold text-5xl leading-none text-tertiary">{FLEET_HEALTH_PERCENT}</Text>
+                <Text className="ml-0.5 font-sans-bold text-2xl leading-none text-tertiary">%</Text>
+              </View>
+            </View>
+            <View className="size-[52px] items-center justify-center rounded-2xl bg-primary">
+              <Image source={Icons.fleetHealth} className="size-9" resizeMode="contain" accessibilityLabel="Fleet health indicator" />
+            </View>
+          </View>
+          <View className="mt-6 flex-row items-center gap-3">
+            <View className="h-2 flex-1 overflow-hidden rounded-full bg-quaternary/15">
+              <View className="h-full rounded-full bg-tertiary" style={{ width: `${FLEET_HEALTH_PERCENT}%` }} />
+            </View>
+            <Text className="font-sans-regular text-[11px] uppercase tracking-wide text-quaternary">Optimal</Text>
+          </View>
+        </View>
+        <View className="h-[100px] max-h-[100px] w-full flex-row gap-3">
+          <View className="min-h-0 min-w-0 flex-1 items-center justify-center rounded-lg bg-card px-1 py-2">
+            <Text className="font-sans-bold text-2xl text-tertiary">10</Text>
+            <Text className="mt-1 font-sans-regular text-[10px] uppercase tracking-wide text-quaternary">Good</Text>
+          </View>
+          <View className="min-h-0 min-w-0 flex-1 items-center justify-center rounded-lg bg-card px-1 py-2">
+            <Text className="font-sans-bold text-2xl text-tertiary">10</Text>
+            <Text className="mt-1 font-sans-regular text-[10px] uppercase tracking-wide text-quaternary">Attention</Text>
+          </View>
+          <View className="min-h-0 min-w-0 flex-1 items-center justify-center rounded-lg bg-card px-1 py-2">
+            <Text className="font-sans-bold text-2xl text-tertiary">10</Text>
+            <Text className="mt-1 font-sans-regular text-[10px] uppercase tracking-wide text-quaternary">Critical</Text>
+          </View>
+        </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Escanear ahora"
+          className="h-16 w-full items-center justify-center rounded-md bg-tertiary active:opacity-90"
+          onPress={() => {}}
+        >
+          <Text className="text-center font-sans-bold text-lg uppercase leading-none tracking-wide text-primary">
+            Escanear ahora
+          </Text>
+        </Pressable>
+      </View>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});

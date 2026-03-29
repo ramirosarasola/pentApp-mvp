@@ -1,24 +1,52 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import "@/global.css";
+import { colors } from "@/app/constants/theme";
+import { ClerkProvider } from "@clerk/expo";
+import { tokenCache } from "@clerk/expo/token-cache";
+import { useFonts } from "expo-font";
+import { SplashScreen, Stack } from "expo-router";
+import { useEffect } from "react";
+import { ActivityIndicator } from "react-native";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+void SplashScreen.preventAutoHideAsync();
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+const spaceGroteskBold = require("@/assets/fonts/Space_Grotesk/SpaceGrotesk-Bold.ttf");
+const publishableKey: string = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
+
+if (!publishableKey) {
+  throw new Error("Add EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY to your .env file");
+}
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const [fontsLoaded] = useFonts({
+    "sans-light": require("@/assets/fonts/Space_Grotesk/SpaceGrotesk-Light.ttf"),
+    "sans-regular": require("@/assets/fonts/Space_Grotesk/SpaceGrotesk-Regular.ttf"),
+    "sans-medium": require("@/assets/fonts/Space_Grotesk/SpaceGrotesk-Medium.ttf"),
+    "sans-semibold": require("@/assets/fonts/Space_Grotesk/SpaceGrotesk-SemiBold.ttf"),
+    "sans-bold": spaceGroteskBold,
+    "sans-extrabold": spaceGroteskBold,
+  });
 
+  useEffect(() => {
+    if (fontsLoaded) {
+      void SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return <ActivityIndicator size="large" color="#000000" />;
+  }
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.tertiary,
+          headerTitleStyle: { fontFamily: "sans-semibold", color: colors.quaternary },
+          headerBackTitleStyle: { fontFamily: "sans-regular" },
+          headerLargeTitleStyle: { fontFamily: "sans-bold" },
+        }}
+      />
+    </ClerkProvider>
   );
 }
