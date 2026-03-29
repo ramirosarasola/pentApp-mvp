@@ -1,5 +1,7 @@
 import "@/global.css";
 import { colors } from "@/app/constants/theme";
+import { ClerkProvider } from "@clerk/expo";
+import { tokenCache } from "@clerk/expo/token-cache";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
@@ -8,6 +10,11 @@ import { ActivityIndicator } from "react-native";
 void SplashScreen.preventAutoHideAsync();
 
 const spaceGroteskBold = require("@/assets/fonts/Space_Grotesk/SpaceGrotesk-Bold.ttf");
+const publishableKey: string = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
+
+if (!publishableKey) {
+  throw new Error("Add EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY to your .env file");
+}
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -29,15 +36,17 @@ export default function RootLayout() {
     return <ActivityIndicator size="large" color="#000000" />;
   }
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        headerStyle: { backgroundColor: colors.background },
-        headerTintColor: colors.tertiary,
-        headerTitleStyle: { fontFamily: "sans-semibold", color: colors.quaternary },
-        headerBackTitleStyle: { fontFamily: "sans-regular" },
-        headerLargeTitleStyle: { fontFamily: "sans-bold" },
-      }}
-    />
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.tertiary,
+          headerTitleStyle: { fontFamily: "sans-semibold", color: colors.quaternary },
+          headerBackTitleStyle: { fontFamily: "sans-regular" },
+          headerLargeTitleStyle: { fontFamily: "sans-bold" },
+        }}
+      />
+    </ClerkProvider>
   );
 }

@@ -1,9 +1,10 @@
 import { tabs } from "@/app/constants/data";
 import { colors, components } from "@/app/constants/theme";
+import { useAuth } from "@clerk/expo";
 import { BottomTabBar } from "@react-navigation/bottom-tabs";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
-import { Tabs } from "expo-router";
+import { Redirect, Tabs } from "expo-router";
 import type { FC } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -82,6 +83,16 @@ function InsetTabBar(props: BottomTabBarProps) {
 }
 
 const TabLayout = () => {
+  const { isLoaded, isSignedIn } = useAuth();
+
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (!isSignedIn) {
+    return <Redirect href="/(auth)/sign-in" />;
+  }
+
   return (
     <ThemeProvider value={tabNavigatorTheme}>
       <Tabs

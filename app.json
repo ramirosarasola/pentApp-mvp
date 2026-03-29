@@ -22,7 +22,14 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "permissions": ["android.permission.BLUETOOTH", "android.permission.BLUETOOTH_ADMIN", "android.permission.ACCESS_FINE_LOCATION", "android.permission.BLUETOOTH_CONNECT", "android.permission.BLUETOOTH_SCAN", "android.permission.BLUETOOTH_ADVERTISE"]
+      "permissions": [
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.BLUETOOTH_ADVERTISE"
+      ]
     },
     "web": {
       "output": "static",
@@ -45,7 +52,13 @@
       [
         "expo-font",
         {
-          "fonts": ["./assets/fonts/Space_Grotesk/SpaceGrotesk-Light.ttf", "./assets/fonts/Space_Grotesk/SpaceGrotesk-Regular.ttf", "./assets/fonts/Space_Grotesk/SpaceGrotesk-Medium.ttf", "./assets/fonts/Space_Grotesk/SpaceGrotesk-SemiBold.ttf", "./assets/fonts/Space_Grotesk/SpaceGrotesk-Bold.ttf"]
+          "fonts": [
+            "./assets/fonts/Space_Grotesk/SpaceGrotesk-Light.ttf",
+            "./assets/fonts/Space_Grotesk/SpaceGrotesk-Regular.ttf",
+            "./assets/fonts/Space_Grotesk/SpaceGrotesk-Medium.ttf",
+            "./assets/fonts/Space_Grotesk/SpaceGrotesk-SemiBold.ttf",
+            "./assets/fonts/Space_Grotesk/SpaceGrotesk-Bold.ttf"
+          ]
         }
       ],
       [
@@ -53,9 +66,13 @@
         {
           "peripheralUsageDescription": "Necesitamos Bluetooth para buscar y conectar el escáner OBD.",
           "alwaysUsageDescription": "Usamos Bluetooth para mantener la conexión con el escáner cuando la app está activa.",
-          "protocols": ["com.apple.m1"]
+          "protocols": [
+            "com.apple.m1"
+          ]
         }
-      ]
+      ],
+      "@clerk/expo",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
