@@ -7,7 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import SocialAuthButtons from "./social-auth-buttons";
 
 export default function SignInScreen() {
-  const { signIn, errors, fetchStatus } = useSignIn();
+  const { signIn, setActive, errors, fetchStatus } = useSignIn();
   const router = useRouter();
   const [emailAddress, setEmailAddress] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -16,17 +16,18 @@ export default function SignInScreen() {
   const isDisabled: boolean = !emailAddress || !password || isSubmitting;
 
   const executeSignIn = async (): Promise<void> => {
-    const { error } = await signIn.password({ emailAddress, password });
+    const { createdSessionId, error } = await signIn.password({ emailAddress, password });
     if (error) {
       console.error(JSON.stringify(error, null, 2));
       return;
     }
     if (signIn.status === "complete") {
-      await signIn.finalize({
-        navigate: () => {
-          router.replace("/(tabs)");
-        },
-      });
+      if (!createdSessionId || !setActive) {
+        console.error("Sign-in completed without an active session.");
+        return;
+      }
+      await setActive({ session: createdSessionId });
+      router.replace("/(tabs)");
       return;
     }
     if (signIn.status === "needs_client_trust") {
@@ -42,13 +43,14 @@ export default function SignInScreen() {
   };
 
   const executeEmailCodeVerification = async (): Promise<void> => {
-    await signIn.mfa.verifyEmailCode({ code });
+    const { createdSessionId } = await signIn.mfa.verifyEmailCode({ code });
     if (signIn.status === "complete") {
-      await signIn.finalize({
-        navigate: () => {
-          router.replace("/(tabs)");
-        },
-      });
+      if (!createdSessionId || !setActive) {
+        console.error("Email verification completed without an active session.");
+        return;
+      }
+      await setActive({ session: createdSessionId });
+      router.replace("/(tabs)");
       return;
     }
     console.error("Sign-in attempt not complete:", signIn.status);

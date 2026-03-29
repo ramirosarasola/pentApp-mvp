@@ -7,7 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import SocialAuthButtons from "./social-auth-buttons";
 
 export default function SignUpScreen() {
-  const { signUp, errors, fetchStatus } = useSignUp();
+  const { signUp, setActive, errors, fetchStatus } = useSignUp();
   const { isSignedIn } = useAuth();
   const router = useRouter();
   const [emailAddress, setEmailAddress] = useState<string>("");
@@ -26,13 +26,14 @@ export default function SignUpScreen() {
   };
 
   const executeEmailVerification = async (): Promise<void> => {
-    await signUp.verifications.verifyEmailCode({ code });
+    const { createdSessionId } = await signUp.verifications.verifyEmailCode({ code });
     if (signUp.status === "complete") {
-      await signUp.finalize({
-        navigate: () => {
-          router.replace("/(tabs)");
-        },
-      });
+      if (!createdSessionId || !setActive) {
+        console.error("Sign-up verification completed without an active session.");
+        return;
+      }
+      await setActive({ session: createdSessionId });
+      router.replace("/(tabs)");
       return;
     }
     console.error("Sign-up attempt not complete:", signUp.status);
