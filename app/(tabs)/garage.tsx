@@ -73,7 +73,7 @@ const Garage = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background p-5 rounded-2xl">
+    <SafeAreaView className="flex-1 bg-background p-5 rounded-2xl" edges={["left", "right"]}>
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: 28 }}

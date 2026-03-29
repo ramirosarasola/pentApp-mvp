@@ -143,7 +143,7 @@ const ObdDev = () => {
   const keyExtractor = useCallback((item: ObdPidSnapshot) => item.key, [])
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={["left", "right"]}>
       <View style={{ flex: 1, paddingHorizontal: spacing[5], paddingTop: spacing[2] }}>
 
         {/* Header */}

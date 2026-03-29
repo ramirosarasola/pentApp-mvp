@@ -16,7 +16,7 @@ export default function AppShellTopBar(props: AppShellTopBarProps) {
       <Pressable accessibilityRole="button" onPress={props.onPressMenu} style={styles.iconButton}>
         <Feather name="menu" size={20} color={colors.tertiary} />
       </Pressable>
-      <Text style={styles.brandText}>PENTAPP</Text>
+      <Text style={styles.brandText}>AutoLibreAI</Text>
       <Pressable accessibilityRole="button" onPress={props.onPressProfile} style={styles.avatarButton}>
         {props.profileImageSource ? (
           <Image source={props.profileImageSource} style={styles.avatarImage} />

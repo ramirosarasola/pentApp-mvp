@@ -2,9 +2,10 @@ import AppShellDrawer from "@/app/components/layout/app-shell-drawer";
 import AppShellTopBar from "@/app/components/layout/app-shell-top-bar";
 import { tabs } from "@/app/constants/data";
 import { colors, components } from "@/app/constants/theme";
+import { useAssistantChat } from "@/app/hooks/use-assistant-chat";
 import { useAuth, useClerk, useUser } from "@clerk/expo";
-import { BottomTabBar } from "@react-navigation/bottom-tabs";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { BottomTabBar } from "@react-navigation/bottom-tabs";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
 import { Redirect, Tabs, useRouter } from "expo-router";
 import { useMemo, useState, type FC } from "react";
@@ -13,7 +14,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { SvgProps } from "react-native-svg";
 
 const tabBar = components.tabBar;
-const TOP_BAR_HEIGHT = 0;
 
 const tabNavigatorTheme = {
   ...DarkTheme,
@@ -27,15 +27,7 @@ const tabNavigatorTheme = {
   },
 };
 
-const TabIcon = ({
-  focused,
-  Icon,
-  label,
-}: {
-  focused: boolean;
-  Icon: FC<SvgProps>;
-  label: string;
-}) => {
+const TabIcon = ({ focused, Icon, label }: { focused: boolean; Icon: FC<SvgProps>; label: string }) => {
   const glyphColor = focused ? colors.tabBarActive : colors.tabBarInactive;
   return (
     <View style={styles.tabCell}>
@@ -94,8 +86,26 @@ const TabLayout = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [isDrawerVisible, setIsDrawerVisible] = useState<boolean>(false);
-  const headerOffsetTop: number = insets.top + TOP_BAR_HEIGHT + components.tabBar.horizontalInset;
+  const headerOffsetTop: number = insets.top + components.appShellTopBar.heightBelowInset;
   const profileImageSource = user?.imageUrl ? { uri: user.imageUrl } : null;
+
+  const { chats, executeSelectChat, executeNewChat } = useAssistantChat();
+
+  const chatHistorySection = useMemo(
+    () => ({
+      chats,
+      onSelectChat: (chatId: string) => {
+        void executeSelectChat(chatId);
+        router.push("/(tabs)/assistant");
+      },
+      onNewChat: () => {
+        void executeNewChat();
+        router.push("/(tabs)/assistant");
+      },
+    }),
+    [chats, executeSelectChat, executeNewChat, router],
+  );
+
   const drawerItems = useMemo(
     () => [
       {
@@ -139,7 +149,7 @@ const TabLayout = () => {
         },
       },
     ],
-    [router, signOut]
+    [router, signOut],
   );
 
   if (!isLoaded) {
@@ -189,28 +199,16 @@ const TabLayout = () => {
               name={tab.name}
               options={{
                 title: tab.title,
-                tabBarIcon: ({ focused }: { focused: boolean }) => (
-                  <TabIcon focused={focused} Icon={tab.Icon} label={tab.title} />
-                ),
+                tabBarIcon: ({ focused }: { focused: boolean }) => <TabIcon focused={focused} Icon={tab.Icon} label={tab.title} />,
               }}
             />
           ))}
         </Tabs>
       </ThemeProvider>
       <View style={styles.topBarLayer}>
-        <AppShellTopBar
-          topInset={insets.top}
-          profileImageSource={profileImageSource}
-          onPressMenu={() => setIsDrawerVisible(true)}
-          onPressProfile={() => setIsDrawerVisible(true)}
-        />
+        <AppShellTopBar topInset={insets.top} profileImageSource={profileImageSource} onPressMenu={() => setIsDrawerVisible(true)} onPressProfile={() => setIsDrawerVisible(true)} />
       </View>
-      <AppShellDrawer
-        isVisible={isDrawerVisible}
-        topInset={insets.top}
-        drawerItems={drawerItems}
-        onClose={() => setIsDrawerVisible(false)}
-      />
+      <AppShellDrawer isVisible={isDrawerVisible} topInset={insets.top} drawerItems={drawerItems} onClose={() => setIsDrawerVisible(false)} chatHistorySection={chatHistorySection} />
     </View>
   );
 };

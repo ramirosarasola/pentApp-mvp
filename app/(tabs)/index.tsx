@@ -6,7 +6,7 @@ const FLEET_HEALTH_PERCENT = 92;
 
 export default function App() {
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-background" edges={["left", "right"]}>
       <View className="flex-1 flex-col gap-8 px-5 pt-4">
         <View className="w-full overflow-hidden rounded-[20px] border-l-4 border-tertiary bg-secondary p-6 h-30">
           <View className="flex-row items-start justify-between gap-4">

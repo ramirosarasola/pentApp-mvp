@@ -44,6 +44,13 @@ export const spacing = {
 } as const;
 
 export const components = {
+  /**
+   * Altura del bloque bajo el notch en `AppShellTopBar`: spacing[3] + fila 40px + spacing[3].
+   * Debe coincidir con el layout de ese componente para que el contenido de las tabs no quede bajo la barra.
+   */
+  appShellTopBar: {
+    heightBelowInset: spacing[3] + 40 + spacing[3],
+  },
   tabBar: {
     height: 78,
     /** Misma base horizontal que `px-5` en pantallas (20px). */
