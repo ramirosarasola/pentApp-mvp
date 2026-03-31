@@ -13,5 +13,5 @@ export default function RootLayout() {
     return <Redirect href="/(tabs)" />;
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return <Stack initialRouteName="sign-in" screenOptions={{ headerShown: false }} />;
 }

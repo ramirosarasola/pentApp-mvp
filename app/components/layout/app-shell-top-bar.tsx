@@ -1,4 +1,5 @@
 import { colors, spacing } from "@/app/constants/theme";
+import { useScannerStatus } from "@/app/hooks/use-scanner-status";
 import { Feather } from "@expo/vector-icons";
 import type { ImageSourcePropType } from "react-native";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
@@ -11,12 +12,22 @@ interface AppShellTopBarProps {
 }
 
 export default function AppShellTopBar(props: AppShellTopBarProps) {
+  const isScannerConnected = useScannerStatus();
   return (
     <View style={[styles.container, { paddingTop: props.topInset + spacing[3] }]}>
       <Pressable accessibilityRole="button" onPress={props.onPressMenu} style={styles.iconButton}>
         <Feather name="menu" size={20} color={colors.tertiary} />
       </Pressable>
-      <Text style={styles.brandText}>AutoLibreAI</Text>
+      <View style={styles.brandRow}>
+        <Text style={styles.brandText}>AutoLibreAI</Text>
+        <View
+          style={[
+            styles.statusDot,
+            { backgroundColor: isScannerConnected ? colors.success : colors.mutedForeground },
+          ]}
+          accessibilityLabel={isScannerConnected ? "Escáner conectado" : "Escáner desconectado"}
+        />
+      </View>
       <Pressable accessibilityRole="button" onPress={props.onPressProfile} style={styles.avatarButton}>
         {props.profileImageSource ? (
           <Image source={props.profileImageSource} style={styles.avatarImage} />
@@ -50,11 +61,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  brandRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   brandText: {
     color: colors.tertiary,
     fontFamily: "sans-bold",
     fontSize: 30,
     letterSpacing: 1,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginBottom: 2,
   },
   avatarButton: {
     width: 40,

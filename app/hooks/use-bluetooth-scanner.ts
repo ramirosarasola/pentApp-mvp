@@ -1,9 +1,12 @@
 import { setConnectedScannerDevice } from "@/app/services/scanner-connection";
 import { ensureBluetoothPermissions } from "@/app/services/ensure-bluetooth-permissions";
 import { getBluetoothModule } from "@/app/services/bluetooth-module";
+import * as SecureStore from "expo-secure-store";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Platform } from "react-native";
 import type { BluetoothDevice, BluetoothDeviceEvent, BluetoothNativeDevice } from "react-native-bluetooth-classic";
+
+const LAST_DEVICE_KEY = "bt_last_connected_id";
 
 export type ScannerDeviceRow = {
   id: string;
@@ -37,11 +40,53 @@ export function useBluetoothScanner() {
   const [connectedId, setConnectedId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const discoverySubRef = useRef<{ remove: () => void } | null>(null);
+  const connectedIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    connectedIdRef.current = connectedId;
+  }, [connectedId]);
 
   const mergeDiscovered = useCallback((native: BluetoothNativeDevice) => {
     const row = mapToRow(native);
     setDevices((prev) => mergeRows(prev, [row]));
   }, []);
+
+  const connectToDevice = useCallback(async (targetId: string): Promise<void> => {
+    if (!bt) {
+      setError("Selecciona un dispositivo de la lista.");
+      return;
+    }
+    setIsConnecting(true);
+    setError(null);
+    try {
+      const device: BluetoothDevice = await bt.connectToDevice(targetId, {
+        connectorType: "rfcomm",
+        connectionType: "delimited",
+        delimiter: "\r",
+        secureSocket: false,
+      });
+      setConnectedScannerDevice(device);
+      setConnectedId(targetId);
+      await SecureStore.setItemAsync(LAST_DEVICE_KEY, targetId);
+    } catch (err) {
+      setConnectedScannerDevice(null);
+      setConnectedId(null);
+      setError(err instanceof Error ? err.message : "No se pudo abrir el socket SPP.");
+    } finally {
+      setIsConnecting(false);
+    }
+  }, [bt]);
+
+  const executeAutoConnect = useCallback(async (rows: ScannerDeviceRow[]): Promise<void> => {
+    if (connectedIdRef.current) {
+      return;
+    }
+    const savedId = await SecureStore.getItemAsync(LAST_DEVICE_KEY);
+    if (!savedId || !rows.some((r) => r.id === savedId)) {
+      return;
+    }
+    await connectToDevice(savedId);
+  }, [connectToDevice]);
 
   const loadBonded = useCallback(async () => {
     if (!bt) {
@@ -57,10 +102,11 @@ export function useBluetoothScanner() {
         }
       });
       setDevices((prev) => mergeRows(prev, rows));
+      await executeAutoConnect(rows);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudieron cargar los dispositivos emparejados.");
     }
-  }, [bt]);
+  }, [bt, executeAutoConnect]);
 
   useEffect(() => {
     void loadBonded();
@@ -108,32 +154,15 @@ export function useBluetoothScanner() {
     }
   }, [bt, loadBonded, mergeDiscovered]);
 
-  const connectSelected = useCallback(async () => {
-    if (!bt || !selectedId) {
+  const connectSelected = useCallback(async (): Promise<void> => {
+    if (!selectedId) {
       setError("Selecciona un dispositivo de la lista.");
       return;
     }
-    setIsConnecting(true);
-    setError(null);
-    try {
-      const device: BluetoothDevice = await bt.connectToDevice(selectedId, {
-        connectorType: "rfcomm",
-        connectionType: "delimited",
-        delimiter: "\r",
-        secureSocket: true,
-      });
-      setConnectedScannerDevice(device);
-      setConnectedId(selectedId);
-    } catch (err) {
-      setConnectedScannerDevice(null);
-      setConnectedId(null);
-      setError(err instanceof Error ? err.message : "No se pudo abrir el socket SPP.");
-    } finally {
-      setIsConnecting(false);
-    }
-  }, [bt, selectedId]);
+    await connectToDevice(selectedId);
+  }, [connectToDevice, selectedId]);
 
-  const disconnectScanner = useCallback(async () => {
+  const disconnectScanner = useCallback(async (): Promise<void> => {
     if (!bt || !connectedId) {
       return;
     }
@@ -143,6 +172,7 @@ export function useBluetoothScanner() {
       await bt.disconnectFromDevice(connectedId);
       setConnectedScannerDevice(null);
       setConnectedId(null);
+      await SecureStore.deleteItemAsync(LAST_DEVICE_KEY);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al desconectar.");
     } finally {

@@ -43,15 +43,16 @@ export class SppTransport {
    * Envía un comando AT u OBD y espera la respuesta completa (hasta '>').
    * Los comandos se encolan — nunca se envían en paralelo.
    */
-  async sendCommand(command: string): Promise<string> {
+  async sendCommand(command: string, timeoutMs?: number): Promise<string> {
     return this.enqueueCommand(async () => {
       return new Promise<string>((resolve, reject) => {
+        const commandTimeoutMs = timeoutMs ?? this.config.commandTimeoutMs
         obdDebug.log("SPP", `TX -> ${command}`)
         const timeoutId = setTimeout(() => {
           this.pendingCommands.shift()
           obdDebug.warn("SPP", `Timeout en comando: ${command}`)
           reject(new Error(`Timeout esperando respuesta para: ${command}`))
-        }, this.config.commandTimeoutMs)
+        }, commandTimeoutMs)
         this.pendingCommands.push({ resolve, reject, timeoutId })
         this.executeWrite(`${command}\r`).catch((err: unknown) => {
           clearTimeout(timeoutId)

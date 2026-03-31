@@ -1,13 +1,13 @@
 import { colors, spacing } from "@/app/constants/theme";
 import { useAuth, useSignUp } from "@clerk/expo";
-import { Link, useRouter } from "expo-router";
+import { Link, Redirect, useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SocialAuthButtons from "./social-auth-buttons";
 
 export default function SignUpScreen() {
-  const { signUp, setActive, errors, fetchStatus } = useSignUp();
+  const { signUp, errors, fetchStatus } = useSignUp();
   const { isSignedIn } = useAuth();
   const router = useRouter();
   const [emailAddress, setEmailAddress] = useState<string>("");
@@ -26,21 +26,24 @@ export default function SignUpScreen() {
   };
 
   const executeEmailVerification = async (): Promise<void> => {
-    const { createdSessionId } = await signUp.verifications.verifyEmailCode({ code });
+    const { error } = await signUp.verifications.verifyEmailCode({ code });
+    if (error) {
+      console.error(JSON.stringify(error, null, 2));
+      return;
+    }
     if (signUp.status === "complete") {
-      if (!createdSessionId || !setActive) {
-        console.error("Sign-up verification completed without an active session.");
-        return;
-      }
-      await setActive({ session: createdSessionId });
-      router.replace("/(tabs)");
+      await signUp.finalize({
+        navigate: () => {
+          router.replace("/(tabs)");
+        },
+      });
       return;
     }
     console.error("Sign-up attempt not complete:", signUp.status);
   };
 
   if (signUp.status === "complete" || isSignedIn) {
-    return null;
+    return <Redirect href="/(tabs)" />;
   }
 
   if (
