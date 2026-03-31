@@ -1,46 +1,40 @@
-import { colors, spacing } from "@/src/constants/theme"
-import { Feather } from "@expo/vector-icons"
-import { useRef, useState } from "react"
-import {
-  ActivityIndicator,
-  Platform,
-  Pressable,
-  StyleSheet,
-  TextInput,
-  View,
-} from "react-native"
+import { colors, spacing } from "@/src/constants/theme";
+import { Feather } from "@expo/vector-icons";
+import { useRef, useState } from "react";
+import { ActivityIndicator, Platform, Pressable, StyleSheet, TextInput, View } from "react-native";
 
-const MAX_COMPOSER_LINES = 5
-const MIN_COMPOSER_HEIGHT = 44
-const INPUT_LINE_HEIGHT = 22
-const COMPOSER_VERTICAL_PADDING = spacing[3] * 2
-const MAX_COMPOSER_HEIGHT = INPUT_LINE_HEIGHT * MAX_COMPOSER_LINES + COMPOSER_VERTICAL_PADDING
+const MAX_COMPOSER_LINES = 5;
+const MIN_COMPOSER_HEIGHT = 44;
+const INPUT_LINE_HEIGHT = 22;
+const COMPOSER_VERTICAL_PADDING = spacing[3] * 2;
+const MAX_COMPOSER_HEIGHT = INPUT_LINE_HEIGHT * MAX_COMPOSER_LINES + COMPOSER_VERTICAL_PADDING;
 
 interface ChatComposerProps {
-  readonly isStreaming: boolean
-  readonly onSend: (text: string) => void
-  readonly bottomInset: number
-  readonly keyboardOffset: number
+  readonly isStreaming: boolean;
+  readonly onSend: (text: string) => void;
+  readonly bottomInset: number;
+  readonly keyboardOffset: number;
 }
 
 export function ChatComposer({ isStreaming, onSend, bottomInset, keyboardOffset }: ChatComposerProps) {
-  const [text, setText] = useState("")
-  const [inputHeight, setInputHeight] = useState(MIN_COMPOSER_HEIGHT)
-  const inputRef = useRef<TextInput>(null)
-  const previousHeightRef = useRef<number>(MIN_COMPOSER_HEIGHT)
+  const [text, setText] = useState("");
+  const [inputHeight, setInputHeight] = useState(MIN_COMPOSER_HEIGHT);
+  const inputRef = useRef<TextInput>(null);
+  const previousHeightRef = useRef<number>(MIN_COMPOSER_HEIGHT);
+  const osPlatformGap = Platform.OS === "ios" ? -25 : -40;
 
-  const canSend = text.trim().length > 0 && !isStreaming
+  const canSend = text.trim().length > 0 && !isStreaming;
 
   const handleSend = () => {
-    if (!canSend) return
-    const toSend = text
-    setText("")
-    setInputHeight(MIN_COMPOSER_HEIGHT)
-    onSend(toSend)
-  }
+    if (!canSend) return;
+    const toSend = text;
+    setText("");
+    setInputHeight(MIN_COMPOSER_HEIGHT);
+    onSend(toSend);
+  };
 
   return (
-    <View style={[styles.container, { marginBottom: keyboardOffset, paddingBottom: Math.max(Platform.OS === "ios" ? spacing[2] : spacing[3], bottomInset + spacing[1]) }]}>
+    <View style={[styles.container, { marginBottom: keyboardOffset > 0 ? keyboardOffset : osPlatformGap, paddingBottom: bottomInset }]}>
       <View style={styles.row}>
         <TextInput
           ref={inputRef}
@@ -52,15 +46,12 @@ export function ChatComposer({ isStreaming, onSend, bottomInset, keyboardOffset 
           multiline
           maxLength={4000}
           onContentSizeChange={(e) => {
-            const measuredContentHeight = e.nativeEvent.contentSize.height
-            const nextHeight = Math.max(
-              MIN_COMPOSER_HEIGHT,
-              Math.min(Math.ceil(measuredContentHeight), MAX_COMPOSER_HEIGHT)
-            )
+            const measuredContentHeight = e.nativeEvent.contentSize.height;
+            const nextHeight = Math.max(MIN_COMPOSER_HEIGHT, Math.min(Math.ceil(measuredContentHeight), MAX_COMPOSER_HEIGHT));
             // Evita oscilaciones por diferencias sub-pixel al recalcular layout.
-            if (Math.abs(nextHeight - previousHeightRef.current) < 2) return
-            previousHeightRef.current = nextHeight
-            setInputHeight(nextHeight)
+            if (Math.abs(nextHeight - previousHeightRef.current) < 2) return;
+            previousHeightRef.current = nextHeight;
+            setInputHeight(nextHeight);
           }}
           textAlignVertical="top"
           returnKeyType="default"
@@ -68,26 +59,12 @@ export function ChatComposer({ isStreaming, onSend, bottomInset, keyboardOffset 
           enablesReturnKeyAutomatically={false}
           scrollEnabled={inputHeight >= MAX_COMPOSER_HEIGHT}
         />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={isStreaming ? "Generando respuesta…" : "Enviar mensaje"}
-          onPress={handleSend}
-          disabled={!canSend}
-          style={[styles.sendButton, canSend ? styles.sendButtonActive : styles.sendButtonIdle]}
-        >
-          {isStreaming ? (
-            <ActivityIndicator size={18} color={colors.primary} />
-          ) : (
-            <Feather
-              name="send"
-              size={18}
-              color={canSend ? colors.primary : colors.mutedForeground}
-            />
-          )}
+        <Pressable accessibilityRole="button" accessibilityLabel={isStreaming ? "Generando respuesta…" : "Enviar mensaje"} onPress={handleSend} disabled={!canSend} style={[styles.sendButton, canSend ? styles.sendButtonActive : styles.sendButtonIdle]}>
+          {isStreaming ? <ActivityIndicator size={18} color={colors.primary} /> : <Feather name="send" size={18} color={canSend ? colors.primary : colors.mutedForeground} />}
         </Pressable>
       </View>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -134,4 +111,4 @@ const styles = StyleSheet.create({
   sendButtonIdle: {
     backgroundColor: "transparent",
   },
-})
+});

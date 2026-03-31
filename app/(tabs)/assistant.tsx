@@ -6,6 +6,7 @@ import { useAssistantChat } from "@/src/hooks/use-assistant-chat";
 import { useGarageApiJson } from "@/src/hooks/use-garage-api-json";
 import type { ChatMessage } from "@/src/services/assistant/assistant-message";
 import { Feather } from "@expo/vector-icons";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Keyboard, Platform, Pressable, StyleSheet, Text, View } from "react-native";
@@ -34,9 +35,12 @@ function EmptyState() {
 
 // ─── Pantalla principal ───────────────────────────────────────────────────────
 
+// iOS 0, Android 5
+const COMPOSER_GAP = Platform.OS === "ios" ? -25 : 10;
+
 const Assistant = () => {
-  const composerGap = 5;
   const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
   const params = useLocalSearchParams<{ chatId?: string }>();
   const [keyboardHeight, setKeyboardHeight] = useState<number>(0);
 
@@ -63,12 +67,10 @@ const Assistant = () => {
   }, [messages.length]);
 
   useEffect(() => {
-    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
-    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
-    const showSubscription = Keyboard.addListener(showEvent, (event) => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", (event) => {
       setKeyboardHeight(event.endCoordinates.height);
     });
-    const hideSubscription = Keyboard.addListener(hideEvent, () => {
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
       setKeyboardHeight(0);
     });
     return () => {
@@ -77,11 +79,11 @@ const Assistant = () => {
     };
   }, []);
 
-  const isKeyboardVisible = keyboardHeight > 0;
-  const composerKeyboardOffset =
-    Platform.OS === "ios"
-      ? (isKeyboardVisible ? Math.max(0, keyboardHeight - insets.bottom) + composerGap : 0)
-      : (isKeyboardVisible ? composerGap : 0);
+  // keyboardHeight se mide desde el borde inferior del dispositivo.
+  // El screen content termina en la parte superior de la tab bar,
+  // por lo que hay que restar tabBarHeight para saber cuánto el teclado
+  // realmente cubre el contenido del screen.
+  const composerKeyboardOffset = keyboardHeight > 0 ? Math.max(0, keyboardHeight - tabBarHeight - insets.bottom) + COMPOSER_GAP : 0;
 
   const renderMessage = ({ item, index }: { item: ChatMessage; index: number }) => {
     const isLastAssistant = item.role === "ASSISTANT" && index === messages.length - 1 && isStreaming;
@@ -135,12 +137,7 @@ const Assistant = () => {
       )}
 
       {/* Compositor */}
-      <ChatComposer
-        isStreaming={isStreaming}
-        onSend={(t) => void executeSendMessage(t)}
-        bottomInset={insets.bottom}
-        keyboardOffset={composerKeyboardOffset}
-      />
+      <ChatComposer isStreaming={isStreaming} onSend={(t) => void executeSendMessage(t)} bottomInset={insets.bottom} keyboardOffset={composerKeyboardOffset} />
     </View>
   );
 };
