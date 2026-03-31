@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SocialAuthButtons from "./social-auth-buttons";
+import type { Href } from "expo-router";
 
 export default function SignInScreen() {
   const { isSignedIn } = useAuth();
@@ -16,6 +17,18 @@ export default function SignInScreen() {
   const isSubmitting: boolean = fetchStatus === "fetching";
   const isDisabled: boolean = !emailAddress || !password || isSubmitting;
 
+  const navigateAfterAuth = ({ session, decorateUrl }: { session: { currentTask?: unknown } | null; decorateUrl: (path: string) => string }): void => {
+    if (session?.currentTask) {
+      console.warn("Pending session task:", session.currentTask);
+      return;
+    }
+    const url = decorateUrl("/");
+    if (url.startsWith("http")) {
+      return;
+    }
+    router.replace(url as Href);
+  };
+
   const executeSignIn = async (): Promise<void> => {
     const { error } = await signIn.password({ emailAddress, password });
     if (error) {
@@ -23,11 +36,7 @@ export default function SignInScreen() {
       return;
     }
     if (signIn.status === "complete") {
-      await signIn.finalize({
-        navigate: () => {
-          router.replace("/(tabs)");
-        },
-      });
+      await signIn.finalize({ navigate: navigateAfterAuth });
       return;
     }
     if (signIn.status === "needs_client_trust") {
@@ -49,11 +58,7 @@ export default function SignInScreen() {
       return;
     }
     if (signIn.status === "complete") {
-      await signIn.finalize({
-        navigate: () => {
-          router.replace("/(tabs)");
-        },
-      });
+      await signIn.finalize({ navigate: navigateAfterAuth });
       return;
     }
     console.error("Sign-in attempt not complete:", signIn.status);
