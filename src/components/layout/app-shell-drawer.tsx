@@ -1,5 +1,5 @@
-import { colors, spacing } from "@/app/constants/theme"
-import type { AssistantChatSummary } from "@/app/services/assistant/assistant-message"
+import { colors, spacing } from "@/src/constants/theme"
+import type { AssistantChatSummary } from "@/src/services/assistant/assistant-message"
 import { Feather } from "@expo/vector-icons"
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"

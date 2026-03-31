@@ -1,10 +1,10 @@
-import type { HttpClient } from "@/app/services/api/http-client"
+import type { HttpClient } from "@/src/services/api/http-client"
 import type {
   ActiveChatResponse,
   AssistantChatSummary,
   ChatsListResponse,
   SendMessageParams,
-} from "@/app/services/assistant/assistant-message"
+} from "@/src/services/assistant/assistant-message"
 
 type TokenProvider = () => Promise<string | null>
 

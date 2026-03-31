@@ -1,10 +1,10 @@
-import type { HttpClient } from "@/app/services/api/http-client"
+import type { HttpClient } from "@/src/services/api/http-client"
 import type {
   CreateDrivingSessionInput,
   DrivingSession,
   DrivingSessionActionResponse,
   StopDrivingSessionInput,
-} from "@/app/services/driving-sessions/driving-session"
+} from "@/src/services/driving-sessions/driving-session"
 
 interface DrivingSessionApiServiceDeps {
   readonly httpClient: HttpClient

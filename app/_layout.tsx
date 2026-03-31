@@ -1,5 +1,5 @@
 import "@/global.css";
-import { colors } from "@/app/constants/theme";
+import { colors } from "@/src/constants/theme";
 import { ClerkProvider } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { useFonts } from "expo-font";

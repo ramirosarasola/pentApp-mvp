@@ -1,5 +1,5 @@
-import { colors, spacing } from "@/app/constants/theme"
-import type { ChatMessage } from "@/app/services/assistant/assistant-message"
+import { colors, spacing } from "@/src/constants/theme"
+import type { ChatMessage } from "@/src/services/assistant/assistant-message"
 import { StyleSheet, Text, View } from "react-native"
 
 interface ChatMessageBubbleProps {

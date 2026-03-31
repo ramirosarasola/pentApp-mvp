@@ -1,6 +1,6 @@
-import { useObdSession } from "@/app/hooks/use-obd-session"
-import type { ObdPidSnapshot } from "@/app/hooks/use-obd-session"
-import { colors, spacing } from "@/app/constants/theme"
+import { useObdSession } from "@/src/hooks/use-obd-session"
+import type { ObdPidSnapshot } from "@/src/hooks/use-obd-session"
+import { colors, spacing } from "@/src/constants/theme"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { useCallback } from "react"
 import {

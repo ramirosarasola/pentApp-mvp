@@ -1,14 +1,15 @@
-import { ChatComposer } from "@/app/components/chat/chat-composer";
-import { ChatMessageBubble } from "@/app/components/chat/chat-message-bubble";
-import { ChatTypingIndicator } from "@/app/components/chat/chat-typing-indicator";
-import { colors, spacing } from "@/app/constants/theme";
-import { useAssistantChat } from "@/app/hooks/use-assistant-chat";
-import { useGarageApiJson } from "@/app/hooks/use-garage-api-json";
-import type { ChatMessage } from "@/app/services/assistant/assistant-message";
+import { ChatComposer } from "@/src/components/chat/chat-composer";
+import { ChatMessageBubble } from "@/src/components/chat/chat-message-bubble";
+import { ChatTypingIndicator } from "@/src/components/chat/chat-typing-indicator";
+import { colors, spacing } from "@/src/constants/theme";
+import { useAssistantChat } from "@/src/hooks/use-assistant-chat";
+import { useGarageApiJson } from "@/src/hooks/use-garage-api-json";
+import type { ChatMessage } from "@/src/services/assistant/assistant-message";
 import { Feather } from "@expo/vector-icons";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useRef } from "react";
-import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { ActivityIndicator, FlatList, Keyboard, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // ─── Estado vacío ─────────────────────────────────────────────────────────────
@@ -34,9 +35,14 @@ function EmptyState() {
 
 // ─── Pantalla principal ───────────────────────────────────────────────────────
 
+// iOS 0, Android 5
+const COMPOSER_GAP = Platform.OS === "ios" ? -25 : 10;
+
 const Assistant = () => {
   const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
   const params = useLocalSearchParams<{ chatId?: string }>();
+  const [keyboardHeight, setKeyboardHeight] = useState<number>(0);
 
   const { responseJson: garageResponse } = useGarageApiJson();
   const activeVehicleId = garageResponse?.items.find((v) => v.isPrimary)?.id ?? garageResponse?.items[0]?.id ?? undefined;
@@ -60,7 +66,24 @@ const Assistant = () => {
     }
   }, [messages.length]);
 
-  const keyboardOffset = insets.top + (Platform.OS === "ios" ? 15 : 24);
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+    });
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardHeight(0);
+    });
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  // keyboardHeight se mide desde el borde inferior del dispositivo.
+  // El screen content termina en la parte superior de la tab bar,
+  // por lo que hay que restar tabBarHeight para saber cuánto el teclado
+  // realmente cubre el contenido del screen.
+  const composerKeyboardOffset = keyboardHeight > 0 ? Math.max(0, keyboardHeight - tabBarHeight - insets.bottom) + COMPOSER_GAP : 0;
 
   const renderMessage = ({ item, index }: { item: ChatMessage; index: number }) => {
     const isLastAssistant = item.role === "ASSISTANT" && index === messages.length - 1 && isStreaming;
@@ -68,7 +91,7 @@ const Assistant = () => {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={keyboardOffset}>
+    <View style={styles.root}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
@@ -114,8 +137,8 @@ const Assistant = () => {
       )}
 
       {/* Compositor */}
-      <ChatComposer isStreaming={isStreaming} onSend={(t) => void executeSendMessage(t)} />
-    </KeyboardAvoidingView>
+      <ChatComposer isStreaming={isStreaming} onSend={(t) => void executeSendMessage(t)} bottomInset={insets.bottom} keyboardOffset={composerKeyboardOffset} />
+    </View>
   );
 };
 

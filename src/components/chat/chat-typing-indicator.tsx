@@ -1,4 +1,4 @@
-import { colors, spacing } from "@/app/constants/theme"
+import { colors, spacing } from "@/src/constants/theme"
 import { useEffect, useRef } from "react"
 import { Animated, StyleSheet, View } from "react-native"
 

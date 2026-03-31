@@ -1,5 +1,5 @@
-import { colors, spacing } from "@/app/constants/theme";
-import { useScannerStatus } from "@/app/hooks/use-scanner-status";
+import { colors, spacing } from "@/src/constants/theme";
+import { useScannerStatus } from "@/src/hooks/use-scanner-status";
 import { Feather } from "@expo/vector-icons";
 import type { ImageSourcePropType } from "react-native";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";

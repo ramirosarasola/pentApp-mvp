@@ -1,4 +1,4 @@
-import { isScannerConnected, subscribeToScannerConnection } from "@/app/services/scanner-connection";
+import { isScannerConnected, subscribeToScannerConnection } from "@/src/services/scanner-connection";
 import { useEffect, useState } from "react";
 
 /**

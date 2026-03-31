@@ -1,7 +1,7 @@
-import { ApiError } from "@/app/services/api/api-error";
-import { HttpClient } from "@/app/services/api/http-client";
-import { GarageApiService } from "@/app/services/garage/garage-api-service";
-import type { GarageVehiclesResponse } from "@/app/services/garage/garage-vehicles-response";
+import { ApiError } from "@/src/services/api/api-error";
+import { HttpClient } from "@/src/services/api/http-client";
+import { GarageApiService } from "@/src/services/garage/garage-api-service";
+import type { GarageVehiclesResponse } from "@/src/services/garage/garage-vehicles-response";
 import { useAuth } from "@clerk/expo";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 

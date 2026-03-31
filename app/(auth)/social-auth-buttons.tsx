@@ -1,8 +1,8 @@
-import { colors, spacing } from "@/app/constants/theme";
+import { colors, spacing } from "@/src/constants/theme";
 import { useSSO } from "@clerk/expo";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
-import { useRouter } from "expo-router";
+import { type Href, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -19,7 +19,6 @@ const providerLabels: Record<SocialStrategy, string> = {
 } as const;
 
 WebBrowser.maybeCompleteAuthSession();
-const REDIRECT_SCHEME = "autolibreai";
 
 export default function SocialAuthButtons({ mode }: SocialAuthButtonsProps) {
   const { startSSOFlow } = useSSO();
@@ -44,15 +43,23 @@ export default function SocialAuthButtons({ mode }: SocialAuthButtonsProps) {
       setActiveStrategy(strategy);
       const { createdSessionId, setActive } = await startSSOFlow({
         strategy,
-        redirectUrl: AuthSession.makeRedirectUri({ scheme: REDIRECT_SCHEME }),
+        redirectUrl: AuthSession.makeRedirectUri(),
       });
       if (!createdSessionId || !setActive) {
         return;
       }
       await setActive({
         session: createdSessionId,
-        navigate: () => {
-          router.replace("/(tabs)");
+        navigate: ({ session, decorateUrl }: { session: { currentTask?: unknown } | null; decorateUrl: (path: string) => string }) => {
+          if (session?.currentTask) {
+            console.warn("Pending session task:", session.currentTask);
+            return;
+          }
+          const url = decorateUrl("/");
+          if (url.startsWith("http")) {
+            return;
+          }
+          router.replace(url as Href);
         },
       });
     } catch (err: unknown) {

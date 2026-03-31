@@ -1,4 +1,4 @@
-import { ApiError } from "@/app/services/api/api-error";
+import { ApiError } from "@/src/services/api/api-error";
 
 type TokenProvider = () => Promise<string | null>;
 

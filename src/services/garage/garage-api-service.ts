@@ -1,6 +1,6 @@
-import { HttpClient } from "@/app/services/api/http-client";
-import type { GarageVehicle } from "@/app/services/garage/garage-vehicle";
-import type { GarageVehiclesResponse } from "@/app/services/garage/garage-vehicles-response";
+import { HttpClient } from "@/src/services/api/http-client";
+import type { GarageVehicle } from "@/src/services/garage/garage-vehicle";
+import type { GarageVehiclesResponse } from "@/src/services/garage/garage-vehicles-response";
 
 interface CreateGarageVehicleInput {
   readonly plate: string;
