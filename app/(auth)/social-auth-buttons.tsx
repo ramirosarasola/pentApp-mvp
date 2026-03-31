@@ -20,6 +20,12 @@ const providerLabels: Record<SocialStrategy, string> = {
 
 WebBrowser.maybeCompleteAuthSession();
 
+/**
+ * Renders a separator and a set of social OAuth buttons that initiate the corresponding SSO flows.
+ *
+ * @param mode - Determines the action label shown on each button; use `"sign-in"` or `"sign-up"`.
+ * @returns The React element for the social-auth section containing the separator and provider buttons.
+ */
 export default function SocialAuthButtons({ mode }: SocialAuthButtonsProps) {
   const { startSSOFlow } = useSSO();
   const router = useRouter();

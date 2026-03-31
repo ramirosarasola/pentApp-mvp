@@ -7,6 +7,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import SocialAuthButtons from "./social-auth-buttons";
 import type { Href } from "expo-router";
 
+/**
+ * Render the sign-in screen that handles password authentication, email-code MFA, and post-auth navigation.
+ *
+ * The component displays inputs for email and password, shows field-level errors, supports sending and verifying
+ * email-based MFA codes when required, and redirects authenticated users away from the screen.
+ *
+ * @returns The sign-in screen React element
+ */
 export default function SignInScreen() {
   const { isSignedIn } = useAuth();
   const { signIn, errors, fetchStatus } = useSignIn();
