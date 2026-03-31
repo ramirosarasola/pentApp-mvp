@@ -72,7 +72,15 @@
         }
       ],
       "@clerk/expo",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "sentry-pentapp-mvp-rn",
+          "organization": "pentapp"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
