@@ -1,6 +1,8 @@
+import "@/src/polyfills/navigator-online";
 import "@/global.css";
 import { colors } from "@/src/constants/theme";
 import { ClerkProvider } from "@clerk/expo";
+import { resourceCache } from "@clerk/expo/resource-cache";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
@@ -36,7 +38,7 @@ export default function RootLayout() {
     return <ActivityIndicator size="large" color="#000000" />;
   }
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache} __experimental_resourceCache={resourceCache}>
       <Stack
         screenOptions={{
           headerShown: false,

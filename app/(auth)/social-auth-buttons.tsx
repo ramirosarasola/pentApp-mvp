@@ -4,13 +4,15 @@ import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import { type Href, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 
 type SocialStrategy = "oauth_google" | "oauth_facebook" | "oauth_apple";
 
 type SocialAuthButtonsProps = {
   readonly mode: "sign-in" | "sign-up";
 };
+
+const APP_SCHEME = "autolibreai" as const;
 
 const providerLabels: Record<SocialStrategy, string> = {
   oauth_google: "Google",
@@ -47,18 +49,20 @@ export default function SocialAuthButtons({ mode }: SocialAuthButtonsProps) {
   const executeSocialAuth = async (strategy: SocialStrategy): Promise<void> => {
     try {
       setActiveStrategy(strategy);
+      const redirectUrl = AuthSession.makeRedirectUri({ scheme: APP_SCHEME });
       const { createdSessionId, setActive } = await startSSOFlow({
         strategy,
-        redirectUrl: AuthSession.makeRedirectUri(),
+        redirectUrl,
       });
       if (!createdSessionId || !setActive) {
+        console.warn("[SocialAuth] No session created for", strategy);
         return;
       }
       await setActive({
         session: createdSessionId,
         navigate: ({ session, decorateUrl }: { session: { currentTask?: unknown } | null; decorateUrl: (path: string) => string }) => {
           if (session?.currentTask) {
-            console.warn("Pending session task:", session.currentTask);
+            console.warn("[SocialAuth] Pending session task:", session.currentTask);
             return;
           }
           const url = decorateUrl("/");
@@ -69,7 +73,9 @@ export default function SocialAuthButtons({ mode }: SocialAuthButtonsProps) {
         },
       });
     } catch (err: unknown) {
-      console.error(`Social auth failed for ${strategy}`, err);
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`[SocialAuth] Failed for ${strategy}:`, message);
+      Alert.alert("Authentication Error", `Could not sign in with ${providerLabels[strategy]}. Please try again.`);
     } finally {
       setActiveStrategy(null);
     }

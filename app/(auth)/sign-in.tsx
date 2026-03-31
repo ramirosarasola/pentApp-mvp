@@ -2,18 +2,13 @@ import { colors, spacing } from "@/src/constants/theme";
 import { useAuth, useSignIn } from "@clerk/expo";
 import { Link, Redirect, useRouter } from "expo-router";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SocialAuthButtons from "./social-auth-buttons";
 import type { Href } from "expo-router";
 
 /**
  * Render the sign-in screen that handles password authentication, email-code MFA, and post-auth navigation.
- *
- * The component displays inputs for email and password, shows field-level errors, supports sending and verifying
- * email-based MFA codes when required, and redirects authenticated users away from the screen.
- *
- * @returns The sign-in screen React element
  */
 export default function SignInScreen() {
   const { isSignedIn } = useAuth();
@@ -27,7 +22,7 @@ export default function SignInScreen() {
 
   const navigateAfterAuth = ({ session, decorateUrl }: { session: { currentTask?: unknown } | null; decorateUrl: (path: string) => string }): void => {
     if (session?.currentTask) {
-      console.warn("Pending session task:", session.currentTask);
+      console.warn("[SignIn] Pending session task:", session.currentTask);
       return;
     }
     const url = decorateUrl("/");
@@ -38,38 +33,50 @@ export default function SignInScreen() {
   };
 
   const executeSignIn = async (): Promise<void> => {
-    const { error } = await signIn.password({ emailAddress, password });
-    if (error) {
-      console.error(JSON.stringify(error, null, 2));
-      return;
-    }
-    if (signIn.status === "complete") {
-      await signIn.finalize({ navigate: navigateAfterAuth });
-      return;
-    }
-    if (signIn.status === "needs_client_trust") {
-      const emailCodeFactor = signIn.supportedSecondFactors.find((factor) => factor.strategy === "email_code");
-      if (emailCodeFactor) {
-        await signIn.mfa.sendEmailCode();
+    try {
+      const { error } = await signIn.password({ emailAddress, password });
+      if (error) {
+        console.error("[SignIn] Password auth error:", JSON.stringify(error, null, 2));
+        return;
       }
-      return;
-    }
-    if (signIn.status !== "needs_second_factor") {
-      console.error("Sign-in attempt not complete:", signIn.status);
+      if (signIn.status === "complete") {
+        await signIn.finalize({ navigate: navigateAfterAuth });
+        return;
+      }
+      if (signIn.status === "needs_client_trust") {
+        const emailCodeFactor = signIn.supportedSecondFactors.find((factor) => factor.strategy === "email_code");
+        if (emailCodeFactor) {
+          await signIn.mfa.sendEmailCode();
+        }
+        return;
+      }
+      if (signIn.status !== "needs_second_factor") {
+        console.error("[SignIn] Unexpected status:", signIn.status);
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("[SignIn] Unhandled error:", message);
+      Alert.alert("Sign-in Error", "Something went wrong. Please try again.");
     }
   };
 
   const executeEmailCodeVerification = async (): Promise<void> => {
-    const { error } = await signIn.mfa.verifyEmailCode({ code });
-    if (error) {
-      console.error(JSON.stringify(error, null, 2));
-      return;
+    try {
+      const { error } = await signIn.mfa.verifyEmailCode({ code });
+      if (error) {
+        console.error("[SignIn] MFA verify error:", JSON.stringify(error, null, 2));
+        return;
+      }
+      if (signIn.status === "complete") {
+        await signIn.finalize({ navigate: navigateAfterAuth });
+        return;
+      }
+      console.error("[SignIn] MFA verify incomplete:", signIn.status);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("[SignIn] MFA unhandled error:", message);
+      Alert.alert("Verification Error", "Could not verify the code. Please try again.");
     }
-    if (signIn.status === "complete") {
-      await signIn.finalize({ navigate: navigateAfterAuth });
-      return;
-    }
-    console.error("Sign-in attempt not complete:", signIn.status);
   };
 
   if (isSignedIn) {

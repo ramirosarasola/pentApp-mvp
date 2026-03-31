@@ -2,9 +2,10 @@ import { colors, spacing } from "@/src/constants/theme";
 import { useAuth, useSignUp } from "@clerk/expo";
 import { Link, Redirect, useRouter } from "expo-router";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SocialAuthButtons from "./social-auth-buttons";
+import type { Href } from "expo-router";
 
 export default function SignUpScreen() {
   const { signUp, errors, fetchStatus } = useSignUp();
@@ -16,30 +17,50 @@ export default function SignUpScreen() {
   const isSubmitting: boolean = fetchStatus === "fetching";
   const isDisabled: boolean = !emailAddress || !password || isSubmitting;
 
-  const executeSignUp = async (): Promise<void> => {
-    const { error } = await signUp.password({ emailAddress, password });
-    if (error) {
-      console.error(JSON.stringify(error, null, 2));
+  const navigateAfterAuth = ({ session, decorateUrl }: { session: { currentTask?: unknown } | null; decorateUrl: (path: string) => string }): void => {
+    if (session?.currentTask) {
+      console.warn("[SignUp] Pending session task:", session.currentTask);
       return;
     }
-    await signUp.verifications.sendEmailCode();
+    const url = decorateUrl("/");
+    if (url.startsWith("http")) {
+      return;
+    }
+    router.replace(url as Href);
+  };
+
+  const executeSignUp = async (): Promise<void> => {
+    try {
+      const { error } = await signUp.password({ emailAddress, password });
+      if (error) {
+        console.error("[SignUp] Password error:", JSON.stringify(error, null, 2));
+        return;
+      }
+      await signUp.verifications.sendEmailCode();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("[SignUp] Unhandled error:", message);
+      Alert.alert("Sign-up Error", "Something went wrong. Please try again.");
+    }
   };
 
   const executeEmailVerification = async (): Promise<void> => {
-    const { error } = await signUp.verifications.verifyEmailCode({ code });
-    if (error) {
-      console.error(JSON.stringify(error, null, 2));
-      return;
+    try {
+      const { error } = await signUp.verifications.verifyEmailCode({ code });
+      if (error) {
+        console.error("[SignUp] Verify error:", JSON.stringify(error, null, 2));
+        return;
+      }
+      if (signUp.status === "complete") {
+        await signUp.finalize({ navigate: navigateAfterAuth });
+        return;
+      }
+      console.error("[SignUp] Verify incomplete:", signUp.status);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("[SignUp] Verify unhandled error:", message);
+      Alert.alert("Verification Error", "Could not verify the code. Please try again.");
     }
-    if (signUp.status === "complete") {
-      await signUp.finalize({
-        navigate: () => {
-          router.replace("/(tabs)");
-        },
-      });
-      return;
-    }
-    console.error("Sign-up attempt not complete:", signUp.status);
   };
 
   if (signUp.status === "complete" || isSignedIn) {
@@ -83,37 +104,37 @@ export default function SignUpScreen() {
         <Text style={styles.title}>Create account</Text>
         <Text style={styles.subtitle}>Set up your profile to start using diagnostics features.</Text>
         <Text style={styles.label}>Email address</Text>
-      <TextInput
-        style={styles.input}
-        autoCapitalize="none"
-        value={emailAddress}
-        placeholder="Email address"
-        placeholderTextColor={colors.mutedForeground}
-        keyboardType="email-address"
-        onChangeText={setEmailAddress}
-      />
-      {errors.fields.emailAddress && <Text style={styles.error}>{errors.fields.emailAddress.message}</Text>}
-      <Text style={styles.label}>Password</Text>
-      <TextInput
-        style={styles.input}
-        value={password}
-        placeholder="Password"
-        placeholderTextColor={colors.mutedForeground}
-        secureTextEntry
-        onChangeText={setPassword}
-      />
-      {errors.fields.password && <Text style={styles.error}>{errors.fields.password.message}</Text>}
-      <Pressable style={[styles.primaryButton, isDisabled && styles.buttonDisabled]} onPress={executeSignUp} disabled={isDisabled}>
-        <Text style={styles.primaryButtonText}>Create account</Text>
-      </Pressable>
-      <SocialAuthButtons mode="sign-up" />
-      <View style={styles.linkContainer}>
-        <Text style={styles.linkBaseText}>Already have an account? </Text>
-        <Link href="/(auth)/sign-in">
-          <Text style={styles.linkText}>Sign in</Text>
-        </Link>
-      </View>
-      <View nativeID="clerk-captcha" />
+        <TextInput
+          style={styles.input}
+          autoCapitalize="none"
+          value={emailAddress}
+          placeholder="Email address"
+          placeholderTextColor={colors.mutedForeground}
+          keyboardType="email-address"
+          onChangeText={setEmailAddress}
+        />
+        {errors.fields.emailAddress && <Text style={styles.error}>{errors.fields.emailAddress.message}</Text>}
+        <Text style={styles.label}>Password</Text>
+        <TextInput
+          style={styles.input}
+          value={password}
+          placeholder="Password"
+          placeholderTextColor={colors.mutedForeground}
+          secureTextEntry
+          onChangeText={setPassword}
+        />
+        {errors.fields.password && <Text style={styles.error}>{errors.fields.password.message}</Text>}
+        <Pressable style={[styles.primaryButton, isDisabled && styles.buttonDisabled]} onPress={executeSignUp} disabled={isDisabled}>
+          <Text style={styles.primaryButtonText}>Create account</Text>
+        </Pressable>
+        <SocialAuthButtons mode="sign-up" />
+        <View style={styles.linkContainer}>
+          <Text style={styles.linkBaseText}>Already have an account? </Text>
+          <Link href="/(auth)/sign-in">
+            <Text style={styles.linkText}>Sign in</Text>
+          </Link>
+        </View>
+        <View nativeID="clerk-captcha" />
       </View>
     </SafeAreaView>
   );
