@@ -16,6 +16,17 @@ interface ChatComposerProps {
   readonly keyboardOffset: number;
 }
 
+/**
+ * Renders a multiline chat input with a send button and adaptive bottom spacing.
+ *
+ * The composer disables sending and shows a loading indicator while streaming; when a message is sent the input is cleared and reset.
+ *
+ * @param isStreaming - When `true`, disables the send action and shows a streaming/loading indicator.
+ * @param onSend - Called with the current message text when the user sends a message.
+ * @param bottomInset - Extra bottom padding (e.g., safe-area or overlay inset) applied to the composer container.
+ * @param keyboardOffset - Additional bottom margin applied when the keyboard is open; when `keyboardOffset` is not positive an OS-specific fallback gap is used.
+ * @returns The chat composer React element.
+ */
 export function ChatComposer({ isStreaming, onSend, bottomInset, keyboardOffset }: ChatComposerProps) {
   const [text, setText] = useState("");
   const [inputHeight, setInputHeight] = useState(MIN_COMPOSER_HEIGHT);
