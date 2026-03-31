@@ -1,8 +1,8 @@
-import AppShellDrawer from "@/app/components/layout/app-shell-drawer";
-import AppShellTopBar from "@/app/components/layout/app-shell-top-bar";
-import { tabs } from "@/app/constants/data";
-import { colors, components } from "@/app/constants/theme";
-import { useAssistantChat } from "@/app/hooks/use-assistant-chat";
+import AppShellDrawer from "@/src/components/layout/app-shell-drawer";
+import AppShellTopBar from "@/src/components/layout/app-shell-top-bar";
+import { tabs } from "@/src/constants/data";
+import { colors, components } from "@/src/constants/theme";
+import { useAssistantChat } from "@/src/hooks/use-assistant-chat";
 import { useAuth, useClerk, useUser } from "@clerk/expo";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { BottomTabBar } from "@react-navigation/bottom-tabs";

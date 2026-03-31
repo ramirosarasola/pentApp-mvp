@@ -1,14 +1,14 @@
-import { ChatComposer } from "@/app/components/chat/chat-composer";
-import { ChatMessageBubble } from "@/app/components/chat/chat-message-bubble";
-import { ChatTypingIndicator } from "@/app/components/chat/chat-typing-indicator";
-import { colors, spacing } from "@/app/constants/theme";
-import { useAssistantChat } from "@/app/hooks/use-assistant-chat";
-import { useGarageApiJson } from "@/app/hooks/use-garage-api-json";
-import type { ChatMessage } from "@/app/services/assistant/assistant-message";
+import { ChatComposer } from "@/src/components/chat/chat-composer";
+import { ChatMessageBubble } from "@/src/components/chat/chat-message-bubble";
+import { ChatTypingIndicator } from "@/src/components/chat/chat-typing-indicator";
+import { colors, spacing } from "@/src/constants/theme";
+import { useAssistantChat } from "@/src/hooks/use-assistant-chat";
+import { useGarageApiJson } from "@/src/hooks/use-garage-api-json";
+import type { ChatMessage } from "@/src/services/assistant/assistant-message";
 import { Feather } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useRef } from "react";
-import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { ActivityIndicator, FlatList, Keyboard, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // ─── Estado vacío ─────────────────────────────────────────────────────────────
@@ -35,8 +35,10 @@ function EmptyState() {
 // ─── Pantalla principal ───────────────────────────────────────────────────────
 
 const Assistant = () => {
+  const composerGap = 5;
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ chatId?: string }>();
+  const [keyboardHeight, setKeyboardHeight] = useState<number>(0);
 
   const { responseJson: garageResponse } = useGarageApiJson();
   const activeVehicleId = garageResponse?.items.find((v) => v.isPrimary)?.id ?? garageResponse?.items[0]?.id ?? undefined;
@@ -60,7 +62,26 @@ const Assistant = () => {
     }
   }, [messages.length]);
 
-  const keyboardOffset = insets.top + (Platform.OS === "ios" ? 15 : 24);
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const showSubscription = Keyboard.addListener(showEvent, (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+    });
+    const hideSubscription = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+    });
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  const isKeyboardVisible = keyboardHeight > 0;
+  const composerKeyboardOffset =
+    Platform.OS === "ios"
+      ? (isKeyboardVisible ? Math.max(0, keyboardHeight - insets.bottom) + composerGap : 0)
+      : (isKeyboardVisible ? composerGap : 0);
 
   const renderMessage = ({ item, index }: { item: ChatMessage; index: number }) => {
     const isLastAssistant = item.role === "ASSISTANT" && index === messages.length - 1 && isStreaming;
@@ -68,7 +89,7 @@ const Assistant = () => {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={keyboardOffset}>
+    <View style={styles.root}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
@@ -114,8 +135,13 @@ const Assistant = () => {
       )}
 
       {/* Compositor */}
-      <ChatComposer isStreaming={isStreaming} onSend={(t) => void executeSendMessage(t)} />
-    </KeyboardAvoidingView>
+      <ChatComposer
+        isStreaming={isStreaming}
+        onSend={(t) => void executeSendMessage(t)}
+        bottomInset={insets.bottom}
+        keyboardOffset={composerKeyboardOffset}
+      />
+    </View>
   );
 };
 

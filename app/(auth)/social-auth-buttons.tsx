@@ -1,4 +1,4 @@
-import { colors, spacing } from "@/app/constants/theme";
+import { colors, spacing } from "@/src/constants/theme";
 import { useSSO } from "@clerk/expo";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";

@@ -1,4 +1,4 @@
-import { colors, spacing } from "@/app/constants/theme";
+import { colors, spacing } from "@/src/constants/theme";
 import { useAuth, useSignIn } from "@clerk/expo";
 import { Link, Redirect, useRouter } from "expo-router";
 import { useState } from "react";

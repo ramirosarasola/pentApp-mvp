@@ -8,15 +8,15 @@
  * - Archivar el chat actual para comenzar uno nuevo
  */
 
-import { HttpClient } from "@/app/services/api/http-client"
+import { HttpClient } from "@/src/services/api/http-client"
 import {
   AssistantApiService,
   createAssistantApiService,
-} from "@/app/services/assistant/assistant-api-service"
+} from "@/src/services/assistant/assistant-api-service"
 import type {
   AssistantChatSummary,
   ChatMessage,
-} from "@/app/services/assistant/assistant-message"
+} from "@/src/services/assistant/assistant-message"
 import { useAuth } from "@clerk/expo"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 

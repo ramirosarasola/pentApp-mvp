@@ -1,6 +1,6 @@
-import { colors } from "@/app/constants/theme";
-import { useGarageApiJson } from "@/app/hooks/use-garage-api-json";
-import type { GarageVehicle } from "@/app/services/garage/garage-vehicle";
+import { colors } from "@/src/constants/theme";
+import { useGarageApiJson } from "@/src/hooks/use-garage-api-json";
+import type { GarageVehicle } from "@/src/services/garage/garage-vehicle";
 import { styled } from "nativewind";
 import React, { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";

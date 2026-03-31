@@ -7,11 +7,11 @@
  * - Al detener la grabación, generar el CSV y enviarlo al servidor
  */
 
-import { ApiError } from "@/app/services/api/api-error"
-import { HttpClient } from "@/app/services/api/http-client"
-import { DrivingSessionApiService } from "@/app/services/driving-sessions/driving-session-api-service"
-import { buildDrivingCsv, type TelemetryCsvSample } from "@/app/telemetry/build-driving-csv"
-import type { DiagnosticCode, LiveTelemetry, ObdConnectionStatus } from "@/app/obd/types"
+import { ApiError } from "@/src/services/api/api-error"
+import { HttpClient } from "@/src/services/api/http-client"
+import { DrivingSessionApiService } from "@/src/services/driving-sessions/driving-session-api-service"
+import { buildDrivingCsv, type TelemetryCsvSample } from "@/src/telemetry/build-driving-csv"
+import type { DiagnosticCode, LiveTelemetry, ObdConnectionStatus } from "@/src/obd/types"
 import { useAuth } from "@clerk/expo"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 

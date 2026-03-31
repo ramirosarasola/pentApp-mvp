@@ -1,6 +1,6 @@
-import { setConnectedScannerDevice } from "@/app/services/scanner-connection";
-import { ensureBluetoothPermissions } from "@/app/services/ensure-bluetooth-permissions";
-import { getBluetoothModule } from "@/app/services/bluetooth-module";
+import { setConnectedScannerDevice } from "@/src/services/scanner-connection";
+import { ensureBluetoothPermissions } from "@/src/services/ensure-bluetooth-permissions";
+import { getBluetoothModule } from "@/src/services/bluetooth-module";
 import * as SecureStore from "expo-secure-store";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Platform } from "react-native";

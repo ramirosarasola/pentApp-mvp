@@ -1,4 +1,4 @@
-import { colors, spacing } from "@/app/constants/theme"
+import { colors, spacing } from "@/src/constants/theme"
 import { Feather } from "@expo/vector-icons"
 import { useRef, useState } from "react"
 import {
@@ -19,9 +19,11 @@ const MAX_COMPOSER_HEIGHT = INPUT_LINE_HEIGHT * MAX_COMPOSER_LINES + COMPOSER_VE
 interface ChatComposerProps {
   readonly isStreaming: boolean
   readonly onSend: (text: string) => void
+  readonly bottomInset: number
+  readonly keyboardOffset: number
 }
 
-export function ChatComposer({ isStreaming, onSend }: ChatComposerProps) {
+export function ChatComposer({ isStreaming, onSend, bottomInset, keyboardOffset }: ChatComposerProps) {
   const [text, setText] = useState("")
   const [inputHeight, setInputHeight] = useState(MIN_COMPOSER_HEIGHT)
   const inputRef = useRef<TextInput>(null)
@@ -38,7 +40,7 @@ export function ChatComposer({ isStreaming, onSend }: ChatComposerProps) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { marginBottom: keyboardOffset, paddingBottom: Math.max(Platform.OS === "ios" ? spacing[2] : spacing[3], bottomInset + spacing[1]) }]}>
       <View style={styles.row}>
         <TextInput
           ref={inputRef}
@@ -95,7 +97,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     paddingHorizontal: spacing[4],
     paddingTop: spacing[2],
-    paddingBottom: Platform.OS === "ios" ? spacing[2] : spacing[3],
   },
   row: {
     flexDirection: "row",

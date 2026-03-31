@@ -1,4 +1,4 @@
-import type { GarageVehicle } from "@/app/services/garage/garage-vehicle";
+import type { GarageVehicle } from "@/src/services/garage/garage-vehicle";
 
 export interface GarageVehiclesResponse {
   readonly items: GarageVehicle[];

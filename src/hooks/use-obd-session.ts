@@ -8,13 +8,13 @@
  * - Exponer el estado de telemetría y conexión a la UI
  */
 
-import { getConnectedScannerDevice } from "@/app/services/scanner-connection"
-import { ObdClient } from "@/app/obd/obd-client"
-import { DASHBOARD_PIDS, DIAGNOSTIC_PIDS, OBD_COMMANDS } from "@/app/obd/pids"
-import { OBD_POLL_FAST_MS, OBD_POLL_SLOW_MS } from "@/app/obd/live-session-config"
-import type { DiagnosticCode, LiveTelemetry, ObdConnectionStatus, ObdResponse } from "@/app/obd/types"
-import type { Elm327Info } from "@/app/obd/elm327"
-import type { Mode01CommandKey } from "@/app/obd/pids"
+import { getConnectedScannerDevice } from "@/src/services/scanner-connection"
+import { ObdClient } from "@/src/obd/obd-client"
+import { DASHBOARD_PIDS, DIAGNOSTIC_PIDS, OBD_COMMANDS } from "@/src/obd/pids"
+import { OBD_POLL_FAST_MS, OBD_POLL_SLOW_MS } from "@/src/obd/live-session-config"
+import type { DiagnosticCode, LiveTelemetry, ObdConnectionStatus, ObdResponse } from "@/src/obd/types"
+import type { Elm327Info } from "@/src/obd/elm327"
+import type { Mode01CommandKey } from "@/src/obd/pids"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 // ─── Tipos públicos ───────────────────────────────────────────────────────────
