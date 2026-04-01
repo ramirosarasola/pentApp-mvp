@@ -29,9 +29,9 @@ export const tabs: readonly TabConfig[] = [
     title: "AI",
     Icon: TabIcons.assistant,
   },
-  {
-    name: "obd-dev",
-    title: "OBD",
-    Icon: TabIcons.obdDev,
-  },
+  // {
+  //   name: "obd-dev",
+  //   title: "OBD",
+  //   Icon: TabIcons.obdDev,
+  // },
 ];

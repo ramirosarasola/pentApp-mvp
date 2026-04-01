@@ -80,7 +80,8 @@
           "project": "sentry-pentapp-mvp-rn",
           "organization": "pentapp"
         }
-      ]
+      ],
+      "@sentry/react-native"
     ],
     "experiments": {
       "typedRoutes": true,

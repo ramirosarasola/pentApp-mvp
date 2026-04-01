@@ -31,7 +31,17 @@ function mergeRows(prev: ScannerDeviceRow[], incoming: ScannerDeviceRow[]): Scan
   return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, "es"));
 }
 
-export function useBluetoothScanner() {
+export interface UseBluetoothScannerOptions {
+  /**
+   * Si es true, al cargar dispositivos vinculados intenta reconectar al último adaptador guardado.
+   * Desactívalo cuando el flujo de la app exija otro paso previo (p. ej. elegir vehículo).
+   * @default false
+   */
+  readonly enableAutoConnect?: boolean;
+}
+
+export function useBluetoothScanner(options: UseBluetoothScannerOptions = {}) {
+  const enableAutoConnect = options.enableAutoConnect ?? false;
   const bt = useMemo(() => getBluetoothModule(), []);
   const [devices, setDevices] = useState<ScannerDeviceRow[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -102,11 +112,13 @@ export function useBluetoothScanner() {
         }
       });
       setDevices((prev) => mergeRows(prev, rows));
-      await executeAutoConnect(rows);
+      if (enableAutoConnect) {
+        await executeAutoConnect(rows);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudieron cargar los dispositivos emparejados.");
     }
-  }, [bt, executeAutoConnect]);
+  }, [bt, enableAutoConnect, executeAutoConnect]);
 
   useEffect(() => {
     void loadBonded();
